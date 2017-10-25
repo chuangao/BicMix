@@ -53,7 +53,8 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, nf_param
 #' @examples
 #' library(BicMix)
 #' ## simulate data, the parameter std specifies the standard error of non-zero entries in the
-#' ## loading and factor matrices, where a normal distribution of mean zero is assumed for these values.
+#' ## loading and factor matrices, where a normal distribution of mean zero
+#' ## is assumed for these values.
 #' data = gen_BicMix_data(std=2)
 #' ## Visulize the loading matrix
 #' image(t(data$lam),x=1:ncol(data$lam),y=1:nrow(data$lam),xlab="Loadings",ylab="Samples")
@@ -70,7 +71,8 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, nf_param
 #' ## correlation matrix if the recovered sparse loadings and the true sparse loadings
 #' cor.est.real = cor(result$lam[,result$z==1],data$lams)
 #' ## visulize the correlation matrix
-#' image(cor.est.real,x=1:nrow(cor.est.real),y=1:ncol(cor.est.real),xlab="Recovered loadings",ylab="True loadings")
+#' image(cor.est.real,x=1:nrow(cor.est.real),y=1:ncol(cor.est.real),
+#' xlab="Recovered loadings",ylab="True loadings")
 #' @references \url{http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004791}
 
 BicMixR <- function(y=y,nf=50,a=0.5,b=0.5,itr=500){
@@ -89,17 +91,16 @@ BicMixR <- function(y=y,nf=50,a=0.5,b=0.5,itr=500){
     return(result)
 }
 
-#' Simulate matrix with dimension of 500 x 200, number of factors is set to 15, where 10 of them being sparse. The sparse loading matrix cotains mostly zeros, and random blocks of nonzero values generated from N(0,std). The dense loading matrix is generated from N(0,std), the factor matrix and the error matrix are generated from N(0,1).
+#' Simulate matrix with dimension of 500 x 20. Number of loadings and factors is set to 15, where 10 loadings and 10 factors are sparse. The sparse loadings and factors cotain mostly zeros, and random blocks of nonzero values generated from N(0,std). The dense loadings and factors are also generated from N(0,std). The error matrix is generated from N(0,1).
 
 #' @param std standard deviation for the normal distribution of the non-zero entries of the sparse components
 
 #' @return a list containing the following
-#' @return lams: the sparse loading matrix
-#' @return lamd: the dense loading matrix
+#' @return lam: the loading matrix combining both the sparse and dense loading
 #' @return ex: the factors matrix
 #' @return y: the y matrix calculated as y = lam * ex + err
  
-gen_BicMix_data <- function(std=1){
+gen_BicMix_data <- function(std=2){
     nf.s <- 10
     nf.d <- 5
 
@@ -139,7 +140,7 @@ gen_BicMix_data <- function(std=1){
 
     y <- lam %*% ex + err
     
-    return(list(y=y,lams=lams,lamd=lamd,lam=lam,exs=exs,exd=exd,ex=ex))
+    return(list(y=y,lam=lam,ex=ex))
 }
 
 #y = gen_BicMix_data(std=1)$y

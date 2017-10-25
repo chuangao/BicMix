@@ -36,7 +36,8 @@ An algorithm for decomposing a high dimensional matrix into the product of a spa
 \examples{
 library(BicMix)
 ## simulate data, the parameter std specifies the standard error of non-zero entries in the
-## loading and factor matrices, where a normal distribution of mean zero is assumed for these values.
+## loading and factor matrices, where a normal distribution of mean zero
+## is assumed for these values.
 data = gen_BicMix_data(std=2)
 ## Visulize the loading matrix
 image(t(data$lam),x=1:ncol(data$lam),y=1:nrow(data$lam),xlab="Loadings",ylab="Samples")
@@ -50,7 +51,8 @@ result = BicMixR(data$y,nf=50,a=0.5,b=0.5,itr=1000)
 ## correlation matrix if the recovered sparse loadings and the true sparse loadings
 cor.est.real = cor(result$lam[,result$z==1],data$lams)
 ## visulize the correlation matrix
-image(cor.est.real,x=1:nrow(cor.est.real),y=1:ncol(cor.est.real),xlab="Recovered loadings",ylab="True loadings")
+image(cor.est.real,x=1:nrow(cor.est.real),y=1:ncol(cor.est.real),
+xlab="Recovered loadings",ylab="True loadings")
 }
 \references{
 \url{http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004791}

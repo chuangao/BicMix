@@ -4,7 +4,7 @@
 \alias{gen_BicMix_data}
 \title{Simulate matrix with dimension of 500 x 200, number of factors is set to 15, where 10 of them being sparse. The sparse loading matrix cotains mostly zeros, and random blocks of nonzero values generated from N(0,std). The dense loading matrix is generated from N(0,std), the factor matrix and the error matrix are generated from N(0,1).}
 \usage{
-gen_BicMix_data(std = 1)
+gen_BicMix_data(std = 2)
 }
 \arguments{
 \item{std}{standard deviation for the normal distribution of the non-zero entries of the sparse components}
