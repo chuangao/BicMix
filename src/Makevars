@@ -1,0 +1,12 @@
+# See Section 1.2.1 "Using 'Makevars'" of Writing R Extensions
+# cran.r-project.org/doc/manuals/R-exts.pdf
+ 
+CFLAGS=-g -O3 -DNDEBUG -fpic -pipe -march=x86-64 -ffast-math
+PKG_CFLAGS=
+PKG_CPPFLAGS=-I${CURDIR}/ -I${CURDIR}/include/ -I${CURDIR}/include/R/
+PKG_LIBS=-L${CURDIR}/lib/ -lgsl -lgslcblas -lm
+
+ 
+$(SHLIB): SFAmix.so 
+SFAmix.so:
+        @($(MAKE) CC="$(CC)")

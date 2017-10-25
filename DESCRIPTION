@@ -1,0 +1,14 @@
+Package: BicMix
+Type: Package
+Title: BicMix
+Version: 0.0-0
+Date: 2017-10-20
+Author: Chuan Gao <chuan.gao.cornell@gmail.com>
+Maintainer: Chuan Gao <chuan.gao.cornell@gmail.com>
+Description: BicMix is a bayesian statistical method that decomposes a normally distributed matrix into the product of a sparse loading matrix, and a sparse factor matrix. The method employs a three parameter beta distribution that act as a spike and slab prior to induce sparsity to the two matrices. The method further consider the loadings and factors to be drawn from a mixture of sparse and dense component, which allows both the sparse components and the dense hidden confounding to be modeled. The method is especially suitable for deriving context informed functional gene modules, where the context is inferred from the factor matrix, and the sparse gene modules are found on the corresponding loadings. Please refer to our paper for more details (http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004791).
+License: GPL (>= 2)
+Depends: R (>= 2.14)
+Collate: BicMixWrapper.R
+NeedsCompilation: yes
+Packaged: 2017-10-20 15:23:21 UTC; cg253
+RoxygenNote: 6.0.1

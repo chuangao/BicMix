@@ -1,0 +1,25 @@
+CC=g++
+CFLAGS=-O2 -march=x86-64 -ffast-math
+#CFLAGS=-O2 -march=x86-64 -ffast-math -DHAVE_INLINE -DGSL_RANGE_CHECK_OFF -g -pg -fopenmp
+LINKER=-L${CURDIR}/lib/
+INCLUDE=-I${CURDIR} -I${CURDIR}/include/ -I${CURDIR}/include/R/
+#LIBS=-lstdc++ -lgfortran -lgsl -lgslcblas -lpthread -lm -static
+#LIBS=-lgsl -lgslcblas -lm -static
+LIBS=-lgsl -lgslcblas -lm
+
+OBJECTS=bicluster_mixture_simul_up_psi_vec.o
+#cd gsl-2.2 && ./configure && make
+#tar -xzvf gsl-2.2.tar.gz
+
+
+all: bicluster_mixture_simul_up_psi_vec
+
+bicluster_mixture_simul_up_psi_vec: $(OBJECTS) myHeader.o
+	$(CC) $(CFLAGS) $(OBJECTS) -o bicluster_mixture_simul_up_psi_vec $(LINKER) $(LIBS)
+bicluster_mixture_simul_up_psi_vec.o: bicluster_mixture_simul_up_psi_vec.cpp
+	$(CC) $(CFLAGS) $(INCLUDE) -c bicluster_mixture_simul_up_psi_vec.cpp
+myHeader.o: myHeader.cpp
+	$(CC) $(CFLAGS) $(INCLUDE) -c myHeader.cpp
+
+clean:
+	rm *.o
