@@ -9,7 +9,7 @@ LIBS=-lgsl -lgslcblas -lm
 
 OBJECTS= BicMix_c.o
 
-all: BicMix.so clean
+all: install BicMix.so clean
 
 BicMix.so: $(OBJECTS)
 	$(CC) -shared BicMix_c.o -o BicMix.so $(LINKER) $(LIBS)
