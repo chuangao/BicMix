@@ -7,5 +7,5 @@ importFrom("stats", "rnorm")
 useDynLib(BicMix)
  
 # Export functions defined in R code
-export(“BicMixR")
+export("BicMixR")
 export("gen_BicMix_data")
