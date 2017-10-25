@@ -2,7 +2,7 @@
 % Please edit documentation in R/BicMixWrapper.R
 \name{gen_BicMix_data}
 \alias{gen_BicMix_data}
-\title{Simulate matrix with dimension of 500 x 200, number of factors is set to 15, where 10 of them being sparse. The sparse loading matrix cotains mostly zeros, and random blocks of nonzero values generated from N(0,std). The dense loading matrix is generated from N(0,std), the factor matrix and the error matrix are generated from N(0,1).}
+\title{Simulate matrix with dimension of 500 x 20. Number of loadings and factors is set to 15, where 10 loadings and 10 factors are sparse. The sparse loadings and factors cotain mostly zeros, and random blocks of nonzero values generated from N(0,std). The dense loadings and factors are also generated from N(0,std). The error matrix is generated from N(0,1).}
 \usage{
 gen_BicMix_data(std = 2)
 }
@@ -12,14 +12,12 @@ gen_BicMix_data(std = 2)
 \value{
 a list containing the following
 
-lams: the sparse loading matrix
-
-lamd: the dense loading matrix
+lam: the loading matrix combining both the sparse and dense loading
 
 ex: the factors matrix
 
 y: the y matrix calculated as y = lam * ex + err
 }
 \description{
-Simulate matrix with dimension of 500 x 200, number of factors is set to 15, where 10 of them being sparse. The sparse loading matrix cotains mostly zeros, and random blocks of nonzero values generated from N(0,std). The dense loading matrix is generated from N(0,std), the factor matrix and the error matrix are generated from N(0,1).
+Simulate matrix with dimension of 500 x 20. Number of loadings and factors is set to 15, where 10 loadings and 10 factors are sparse. The sparse loadings and factors cotain mostly zeros, and random blocks of nonzero values generated from N(0,std). The dense loadings and factors are also generated from N(0,std). The error matrix is generated from N(0,1).
 }
