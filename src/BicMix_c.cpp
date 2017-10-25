@@ -360,7 +360,7 @@ int main(int argc,char *argv[]){
 */    
     EXX=EX*EX.transpose();
 
-	cout << "before LPL" << endl;
+	// cout << "before LPL" << endl;
 	
     VectorXd x_count_v = VectorXd::Constant(n_itr,0);
     //LPL=LAM.transpose()*PSI_INV*LAM;
@@ -370,7 +370,7 @@ int main(int argc,char *argv[]){
         LPL += LAM_T.col(i)*PSI_INV(i)*LAM.row(i);
     }
 
-	cout << "after LPL" << endl;
+	// cout << "after LPL" << endl;
     
     for(int itr=0;itr<n_itr;itr++){
         
@@ -594,13 +594,13 @@ int main(int argc,char *argv[]){
 
 		//partR=LAM.transpose()*PSI_INV*Y;
 
-		cout << "before partR" << endl; 
+		//cout << "before partR" << endl;
 		MatrixXd LAM_T=LAM.transpose();
 		partR.setZero();
 		for(int i=0;i<s_n;i++){
 			partR = partR + LAM_T.col(i)*PSI_INV(i)*Y.row(i);
 		}
-		cout << "after partR" << endl;
+		//cout << "after partR" << endl;
 		
         //cout << "partR " << endl << partR.block(0,0,5,5) << endl;
         
@@ -700,14 +700,14 @@ int main(int argc,char *argv[]){
         indexALL.setZero();
 		
 		//partL=PSI_INV*Y*EX.transpose();
-		cout << "before partL" << endl;
+		//cout << "before partL" << endl;
 		MatrixXd PSIY=MatrixXd::Constant(s_n,d_y,0);
 		for(int i=0;i<s_n;i++){
 			PSIY.row(i) = PSI_INV(i)*Y.row(i);
 		}
 		partL=PSIY*EX.transpose();
 
-		cout << "after partL" << endl;
+		//cout << "after partL" << endl;
 		
         //cout << "partL " << endl << partL.block(0,0,5,5) << endl;
         //LPL=LAM.transpose()*PSI_INV*LAM;
@@ -995,14 +995,14 @@ int main(int argc,char *argv[]){
 		range_colwise(range_THETA,THETA,s_n,nf);
 
 		if(itr%1==0){
-			cout << "after reduction" << endl;
+			//cout << "after reduction" << endl;
 			cout << "itr " << itr << endl;
 			cout << "number of factors " << nf << endl;
 			
 			cout << "count_lam" << endl << count_lam.transpose() << endl;
 			cout << "count_x" << endl << count_x.transpose() << endl;
-			cout << "PHI" << endl << PHI.transpose() << endl;
-			cout << "LAMX" << endl << LAMX.transpose() << endl;
+			//cout << "PHI" << endl << PHI.transpose() << endl;
+			//cout << "LAMX" << endl << LAMX.transpose() << endl;
 			//cout << a << b << c << d << g << h << endl;
 
 			//cout << "range LAM\n" << std::setprecision(3) << range_LAM << endl;
@@ -1026,7 +1026,7 @@ int main(int argc,char *argv[]){
         }
     }
 
-    cout << "nf " << nf << endl;
+    //cout << "nf " << nf << endl;
     //LAM_out[0] = 1.5;
     
     for(int i = 0; i < nf; i++){
