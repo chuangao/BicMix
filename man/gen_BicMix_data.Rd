@@ -12,9 +12,17 @@ gen_BicMix_data(std = 2)
 \value{
 a list containing the following
 
+lams: the sparse loadings
+
+lamd: the dense loadings
+
 lam: the loading matrix combining both the sparse and dense loading
 
-ex: the factors matrix
+exs: the sparse factors matrix
+
+exd: the dense factors matrix
+
+ex: the factors matrix combining both the sparse and dense factors
 
 y: the y matrix calculated as y = lam * ex + err
 }

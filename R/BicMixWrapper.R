@@ -96,8 +96,13 @@ BicMixR <- function(y=y,nf=50,a=0.5,b=0.5,itr=500){
 #' @param std standard deviation for the normal distribution of the non-zero entries of the sparse components
 
 #' @return a list containing the following
+#' @return lams: the sparse loadings
+#' @return lamd: the dense loadings
 #' @return lam: the loading matrix combining both the sparse and dense loading
-#' @return ex: the factors matrix
+
+#' @return exs: the sparse factors matrix
+#' @return exd: the dense factors matrix
+#' @return ex: the factors matrix combining both the sparse and dense factors
 #' @return y: the y matrix calculated as y = lam * ex + err
  
 gen_BicMix_data <- function(std=2){
@@ -140,7 +145,7 @@ gen_BicMix_data <- function(std=2){
 
     y <- lam %*% ex + err
     
-    return(list(y=y,lam=lam,ex=ex))
+    return(list(y=y,lams=lams,lamd=lamd,lam=lam,exs=exs,exd=exd,ex=ex))
 }
 
 #y = gen_BicMix_data(std=1)$y
