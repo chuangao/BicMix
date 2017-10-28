@@ -1,7 +1,7 @@
 CC=g++
 CFLAGS=-g -O3 -DNDEBUG -fpic -pipe -march=x86-64 -ffast-math
 #CFLAGS=-O2 -march=x86-64 -ffast-math -DHAVE_INLINE -DGSL_RANGE_CHECK_OFF -g -pg -fopenmp
-LINKER=-L${CURDIR}/lib/ -W,-rpath,${CURDIR}/lib/
+LINKER=-L${CURDIR}/lib/ -Wl,-rpath,${CURDIR}/lib/
 
 INCLUDE=-isystem${CURDIR}/ -isystem${CURDIR}/include/ -isystem${CURDIR}/include/R/ -w
 #LIBS=-lstdc++ -lgfortran -lgsl -lgslcblas -lpthread -lm -static
