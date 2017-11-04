@@ -44,7 +44,7 @@ usage
 
 
 
-extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, double *a_param,double *b_param, int *nf_param, int *itr_param, double *LAM_out, double *EX_out, double *Z_out, double *O_out,double *EXX_out, int *nf_out){
+extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, double *a_param,double *b_param, int *nf_param, int *itr_param, double *LAM_out, double *EX_out, double *Z_out, double *O_out,double *EXX_out, int *nf_out, int *out_itr, char **output_dir){
     
     double a = *a_param;
     double b = *b_param;
@@ -52,6 +52,12 @@ extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, do
     int s_n = *nrow_param;
     int d_y = *ncol_param;
     int n_itr = *itr_param;
+    
+    int interval = *out_itr;
+    string out_dir = *output_dir;
+    std::replace( out_dir.begin(), out_dir.end(), '%', '/');
+    
+    stringstream ss;
     
     //cout << "a " << a << endl;
     
@@ -64,7 +70,7 @@ extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, do
     
     double c=0.5,d=0.5,g=0.5,h=0.5,alpha=1,beta=1;
     
-    int interval = 100;
+    //int interval = 100;
     
     MatrixXd Y=MatrixXd::Constant(s_n,d_y,0);
     
@@ -1015,14 +1021,67 @@ int main(int argc,char *argv[]){
  		
         // claim convergence if the number of values is stable for 200 iterations.
         if(itr>interval){
-            //if(itr%interval==0 || ((lam_count_v(itr)-lam_count_v(itr-interval)==0)&&(x_count_v(itr)-x_count_v(itr-interval)==0)&&(log_det(itr)-log_det(itr-interval))<1)){
-			//if(itr%interval==0 || ((lam_count_v(itr)-lam_count_v(itr-interval)==0)&&(x_count_v(itr)-x_count_v(itr-interval)==0)&&(abs(bic(itr)-bic(itr-interval)))<20)){
-
 			if(lam_count_v(itr-interval)!=(nf*s_n)&&(lam_count_v(itr)-lam_count_v(itr-interval)==0)&&(x_count_v(itr)-x_count_v(itr-interval)==0)){
 			
 		
 				break;
             }
+        }
+        if(out_dir.compare("NULL") != 0 & itr % interval == 0){
+            
+            ss.str("");
+            ss.clear();
+            ss << out_dir << "/LAM_" << itr;
+            ofstream f_lam (ss.str().c_str());
+            if (f_lam.is_open()){
+                f_lam << LAM << endl;
+            }
+            f_lam.close();
+            
+            ss.str("");
+            ss.clear();
+            ss << out_dir << "/EX_" << itr;
+            ofstream f_ex (ss.str().c_str());
+            if (f_ex.is_open()){
+                f_ex << EX << endl;
+            }
+            f_ex.close();
+            
+            ss.str("");
+            ss.clear();
+            ss << out_dir << "/Z_" << itr;
+            ofstream f_z (ss.str().c_str());
+            if (f_z.is_open()){
+                f_z << Z.row(1) << endl;
+            }
+            f_z.close();
+            
+            ss.str("");
+            ss.clear();
+            ss << out_dir << "/O_" << itr;
+            ofstream f_o (ss.str().c_str());
+            if (f_o.is_open()){
+                f_o << O.row(1) << endl;
+            }
+            f_o.close();
+            
+            ss.str("");
+            ss.clear();
+            ss << out_dir << "/EXX_" << itr;
+            ofstream f_exx (ss.str().c_str());
+            if (f_exx.is_open()){
+                f_exx << EXX << endl;
+            }
+            f_exx.close();
+            
+            ss.str("");
+            ss.clear();
+            ss << out_dir << "/nf_" << itr;
+            ofstream f_nf (ss.str().c_str());
+            if (f_nf.is_open()){
+                f_nf << nf << endl;
+            }
+            f_nf.close();
         }
     }
 
