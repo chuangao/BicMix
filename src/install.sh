@@ -1,7 +1,8 @@
 
-
+mkdir -p ./include/R
+mkdir -p ./lib
 #mkdir -p lib
-#mkdir -p include 
+#mkdir -p include
 
 #URL='http://www.localmsp.org/gnu/gsl/gsl-2.2.tar.gz'
 
@@ -21,12 +22,21 @@ cd ../
 #wget ${URL}
 #mkdir -p eigen
 #tar -xzvf eigen-eigen-67e894c6cd8f.tar.gz
-#cp -r eigen-eigen-67e894c6cd8f/Eigen $PWD/include/ 
-
+#cp -r eigen-eigen-67e894c6cd8f/Eigen $PWD/include/
 mkdir -p ./include/R
-Rhome=$(R RHOME)
-cp -r ${Rhome}/include/* ./include/R/
-cp -r ${Rhome}/lib/* ./lib/
+echo "loc = R.home('include');write.table(loc,'loc_include.txt',row.names=F,col.names=F,sep=',',quote=F)"  | R --vanilla
+locinclude=$(cat loc_include.txt)
+cp -r $locinclude/* ./include/R/
+
+mkdir -p ./lib
+echo "loc = R.home('lib');write.table(loc,'loc_lib.txt',row.names=F,col.names=F,sep=',',quote=F)"  | R --vanilla
+loclib=$(cat loc_lib.txt)
+cp -r $loclib/* ./lib/
+
+
+#Rhome=$(R RHOME)
+#cp -r ${Rhome}/include/* ./include/R/
+#cp -r ${Rhome}/lib/* ./lib/
 
 ls
 
