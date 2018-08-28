@@ -7,6 +7,6 @@ PKG_CPPFLAGS=-I${CURDIR}/ -I${CURDIR}/include/ -I${CURDIR}/include/R/
 PKG_LIBS=-L${CURDIR}/lib/ -lgsl -lgslcblas -lm
 
  
-$(SHLIB): SFAmix.so 
-SFAmix.so:
+$(SHLIB): BicMix.so 
+BicMix.so:
         @($(MAKE) CC="$(CC)")
