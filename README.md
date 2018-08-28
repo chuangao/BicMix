@@ -38,16 +38,19 @@ BicMixR(y = y, nf = 100, itr = 5000) <br/>
 **itr** the number of iterations for the algorithm to converge <br/>
 
 ### Examples
-library(BicMix) <br/>
-\# simulate data <br/>
+library(BicMix)<br/>
+\## simulate data, the parameter std specifies the standard error of non-zero entries in the ## loading and factor matrices, where a normal distribution of mean zero is assumed for these values. <br/>
 data = gen_BicMix_data(std=2) <br/>
-\# run algorithm on the simulated  <br/>
-result = BicMixR(data$y,nf=50,itr=5000) <br/>
-\# calculate a correlation matrix of the estimated loading matrix <br/>
-\# and the true loading matrix. Ideally, there should be one and only one big correlation value for a given row and column of the correlation matrix <br/>
+\## Visulize the loading matrix  <br/>
+image(t(data$lam),x=1:ncol(data$lam),y=1:nrow(data$lam),xlab="Loadings",ylab="Samples") <br/>
+\## Visulize the factor matrix <br/>
+image(t(data$ex),x=1:ncol(data$ex),y=1:nrow(data$ex),xlab="Samples",ylab="Factors") <br/>
+\## run algorithm on the simulated data <br/>
+result = BicMixR(data$y,nf=50,a=0.5,b=0.5,itr=1000) <br/>
+\## calculate a correlation matrix of the estimated loading matrix and the true loading matrix. Ideally, there should be one and only one big correlation value for a given row and column of the correlation matrix <br/>
 cor.est.real = cor(result$lam[,result$z==1],data$lams) <br/>
-\# visulize the correlation matrix <br/>
-image(cor.est.real) <br/>
+\## visulize the correlation matrix <br/>
+image(cor.est.real,x=1:nrow(cor.est.real),y=1:ncol(cor.est.real),xlab="Recovered loadings",ylab="True loadings") <br/>
 
 ### Documentation
 Please refer to BicMix.pdf for more usage details <br/>
