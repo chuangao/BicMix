@@ -16,7 +16,11 @@
 
 ## Usage
 
-BicMixR(y = y, nf = 100, itr = 5000)
+BicMixR(y = y, nf = 100, itr = 5000) <br/>
+
+**Please no headers in the input matrix, no missing values, just pure numbers, ideally quantile normalized** <br/>
+**Also no corrections of confounding beforehand, BicMix will handle that in the dense components** <br/>
+**For a gene expression matrix, it is prefered that each gene is a row and each sample is a column** <br/> 
 
 ### Arguments
 **y** matrix to be decmoposed, no missing values are allowed <br/>
