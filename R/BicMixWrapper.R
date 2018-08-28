@@ -9,7 +9,7 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, nf_param
     nf_out <- rep(0,1)
     
     result <- .C ("BicMix",
-                  as.double(Y_TMP_param),as.integer(nrow_param), as.integer(ncol_param), as.double(a_param),as.double(b_param), as.integer(nf_param), as.integer(itr_param), LAM=as.double(LAM_out), EX=as.double(EX_out), Z=as.double(Z_out), O=as.double(O_out),EXX=as.double(EXX_out), nf=as.integer(nf_out), as.integer(out_itr), as.character(out_dir),PACKAGE= "BicMix")
+                  as.double(Y_TMP_param),as.integer(nrow_param), as.integer(ncol_param), as.double(a_param),as.double(b_param), as.integer(nf_param), as.integer(itr_param), LAM=as.double(LAM_out), EX=as.double(EX_out), Z=as.double(Z_out), O=as.double(O_out),EXX=as.double(EXX_out), nf=as.integer(nf_out), as.integer(out_itr), as.character(out_dir))
 
     nf <- result[['nf']][1]
     
