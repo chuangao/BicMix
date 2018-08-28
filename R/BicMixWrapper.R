@@ -9,7 +9,7 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, nf_param
     nf_out <- rep(0,1)
     
     result <- .C ("BicMix",
-                  as.double(Y_TMP_param),as.integer(nrow_param), as.integer(ncol_param), as.double(a_param),as.double(b_param), as.integer(nf_param), as.integer(itr_param), LAM=as.double(LAM_out), EX=as.double(EX_out), Z=as.double(Z_out), O=as.double(O_out),EXX=as.double(EXX_out), nf=as.integer(nf_out), as.integer(out_itr), as.character(out_dir))
+                  as.double(Y_TMP_param),as.integer(nrow_param), as.integer(ncol_param), as.double(a_param),as.double(b_param), as.integer(nf_param), as.integer(itr_param), LAM=as.double(LAM_out), EX=as.double(EX_out), Z=as.double(Z_out), O=as.double(O_out),EXX=as.double(EXX_out), nf=as.integer(nf_out), as.integer(out_itr), as.character(out_dir),PACKAGE= "BicMix"))
 
     nf <- result[['nf']][1]
     
@@ -41,7 +41,7 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, nf_param
 #' @param nf the number of factors for the algorithm to start with, will be shrank to a smaller number reflecting the number of factors needed to explain the variance, default to 50
 #' @param a paramater one for the three parameter beta distribution, default to 0.5 to recapitulate horseshoe
 #' @param b paramater two for the three parameter beta distribution, default to 0.5 to recapitulate horseshoe
-#' @param itr The maximum number of iterations the algorithm is allowed to run, default to 500
+#' @param itr The maximum number of iterations the algorithm is allowed to run, default to 5000
 #' @param out_itr (Optional) Iteration number out_itr, the algorithm will write temporary results into the specified directory (see below) every out_itr number of iterations.
 #' @param out_dir (Optional) Directory where the algorithm will write temporary results into at the specified iteration number(see above)
 
@@ -77,7 +77,7 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, nf_param
 #' xlab="Recovered loadings",ylab="True loadings")
 #' @references \url{http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004791}
 
-BicMixR <- function(y=y,nf=50,a=0.5,b=0.5,itr=500,out_itr=20,out_dir=NULL){
+BicMixR <- function(y=y,nf=50,a=0.5,b=0.5,itr=5001,out_itr=50,out_dir=NULL){
 
     out_dir2 = out_dir
     out_dir2 = gsub("/","%",out_dir2)
