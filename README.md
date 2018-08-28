@@ -39,7 +39,7 @@ data = gen_BicMix_data(std=2) <br/>
 \# run algorithm on the simulated  <br/>
 result = BicMixR(data$y,nf=50,itr=5000) <br/>
 \# calculate a correlation matrix of the estimated loading matrix <br/>
-\# and the true loading matrix. Ideally, there should be one and only one big correlation value for a given row and column of the correlation matrix
+\# and the true loading matrix. Ideally, there should be one and only one big correlation value for a given row and column of the correlation matrix <br/>
 cor.est.real = cor(result$lam[,result$z==1],data$lams) <br/>
 \# visulize the correlation matrix <br/>
 image(cor.est.real) <br/>
