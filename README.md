@@ -25,7 +25,7 @@ BicMixR(y = y, nf = 100, itr = 5000) <br/>
 ### Arguments
 **y** matrix to be decmoposed, no missing values are allowed <br/>
 **nf** the number of factors for the algorithm to start with, will be shrank to a smaller number reflecting the number of factors needed to explain the variance, default to 50 <br/>
-**itr** The maximum number of iterations the algorithm is allowed to run, default to 500 <br/>
+**itr** The maximum number of iterations the algorithm is allowed to run, default to 5000 <br/>
 **out_itr** (Optional) the algorithm will write temporary results into the specified directory (see below) every out_itr number of iterations <br/>
 **out_dir** (Optional) Directory where the algorithm will write temporary results into at the specified iteration number(see above) <br/>
 
