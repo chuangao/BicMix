@@ -53,7 +53,8 @@ extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, do
     int d_y = *ncol_param;
     int n_itr = *itr_param;
     
-    int interval = *out_itr;
+    int write_itr = *out_itr;
+    
     string out_dir = *output_dir;
     std::replace( out_dir.begin(), out_dir.end(), '%', '/');
     
@@ -70,7 +71,7 @@ extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, do
     
     double c=0.5,d=0.5,g=0.5,h=0.5,alpha=1,beta=1;
     
-    //int interval = 100;
+    int interval = 500;
     
     MatrixXd Y=MatrixXd::Constant(s_n,d_y,0);
     
@@ -1000,7 +1001,7 @@ int main(int argc,char *argv[]){
 		range_rowwise(range_EX,EX,nf,d_y);
 		range_colwise(range_THETA,THETA,s_n,nf);
 
-		if(itr%1==0){
+		if(itr%20==0){
 			//cout << "after reduction" << endl;
 			cout << "itr " << itr << endl;
 			cout << "number of factors " << nf << endl;
@@ -1022,12 +1023,10 @@ int main(int argc,char *argv[]){
         // claim convergence if the number of values is stable for 200 iterations.
         if(itr>interval){
 			if(lam_count_v(itr-interval)!=(nf*s_n)&&(lam_count_v(itr)-lam_count_v(itr-interval)==0)&&(x_count_v(itr)-x_count_v(itr-interval)==0)){
-			
-		
 				break;
             }
         }
-        if(out_dir.compare("NULL") != 0 & itr % interval == 0){
+        if(out_dir.compare("NULL") != 0 & itr % write_itr == 0){
             
             ss.str("");
             ss.clear();
