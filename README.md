@@ -50,10 +50,9 @@ image(cor.est.real) <br/>
     
 Please refer to BicMix.pdf for more usage details <br/>
 
-### References
-This work is detailed in <br/>
-A latent factor model with a mixture of sparse and dense factors to model gene expression data with confounding effects<br/>
-https://arxiv.org/abs/1310.4792
+### Reference
+Context Specific and Differential Gene Co-expression Networks via Bayesian Biclustering <br/>
+http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004791
 
 
 
