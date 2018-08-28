@@ -32,7 +32,8 @@ BicMixR(y = y, nf = 100, itr = 5000) <br/>
 ### Value
 **lam** the sparse loading matrix <br/>
 **ex** the factor matrix <br/>
-**z** a vector indicating whether the corresponding loading is sparse (value of 1) nf: the number of factors learned by the model <br/>
+**z** a vector indicating whether the corresponding loading is sparse (value of 1) <br/> 
+**nf** the number of factors learned by the model <br/>
 **exx** the expected value of the covarance matrix, E(XX^T) <br/>
 **itr** the number of iterations for the algorithm to converge <br/>
 
