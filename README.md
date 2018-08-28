@@ -30,7 +30,7 @@ BicMixR(y = y, nf = 100, itr = 5000) <br/>
 **out_itr** (Optional) the algorithm will write temporary results into the specified directory (see below) every out_itr number of iterations <br/>
 **out_dir** (Optional) Directory where the algorithm will write temporary results into at the specified iteration number(see above) <br/>
 
-### Value
+### Output
 **lam** the sparse loading matrix <br/>
 **ex** the factor matrix <br/>
 **z** a vector indicating whether the corresponding loading is sparse (value of 1) <br/> 
@@ -39,7 +39,7 @@ BicMixR(y = y, nf = 100, itr = 5000) <br/>
 **exx** the expected value of the covarance matrix, E(XX^T) <br/>
 **itr** the number of iterations for the algorithm to converge <br/>
 
-### Examples
+### Example
 library(BicMix)<br/>
 \## simulate data, the parameter std specifies the standard error of non-zero entries in the ## loading and factor matrices, where a normal distribution of mean zero is assumed for these values. <br/>
 data = gen_BicMix_data(std=2) <br/>
