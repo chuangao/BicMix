@@ -4,16 +4,18 @@
 
 ###### This is the C++ implementation of BicMixC wrapped in R. It is compiled single threaded. If you want to run multiple threaded, please check the BicMixC package 
 
-## Use devtools to install in R
-
-`library(devtools)` <br/>
-`install_github("chuangao/BicMix")` <br/>
 
 ## Install from source
-If install_github command fails (I found that install_github can't resolve the namespace that I specified in the .C all), then clone library into one of your local directory, then install from source <br/>
 
 `git clone https://github.com/chuangao/BicMix` <br/>
 `R CMD INSTALL BicMix` <br/>
+
+## Use devtools to install in R
+
+I found that install_github failed after I added namespace into the the .C all. Please install from source  
+
+`library(devtools)` <br/>
+`install_github("chuangao/BicMix")` <br/>
 
 ## Usage
 
