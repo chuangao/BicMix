@@ -11,4 +11,4 @@ Depends: R (>= 2.14)
 Collate: BicMixWrapper.R
 NeedsCompilation: yes
 Packaged: 2017-10-20 15:23:21 UTC; cg253
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1

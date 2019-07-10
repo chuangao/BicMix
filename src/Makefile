@@ -1,10 +1,10 @@
 CC=g++
 unamestr := $(shell uname)
 ifeq ($(unamestr),Linux)
-	CFLAGS=-g -O3 -DNDEBUG -fpic -pipe -march=x86-64 -ffast-math -fopenmp
+	CFLAGS=-g -O3 -DNDEBUG -fpic -pipe -march=x86-64 -ffast-math -fopenmp -std=c++11
 endif
 ifeq ($(unamestr),Darwin)
-	CFLAGS=-g -O3 -DNDEBUG -fpic -pipe -march=x86-64 -ffast-math
+	CFLAGS=-g -O3 -DNDEBUG -fpic -pipe -march=x86-64 -ffast-math -std=c++11
 endif
 #CFLAGS=-O2 -march=x86-64 -ffast-math -DHAVE_INLINE -DGSL_RANGE_CHECK_OFF -g -pg -fopenmp
 LINKER=-L${CURDIR}/lib/ -Wl,-rpath,${CURDIR}/lib/
