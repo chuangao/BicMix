@@ -72,7 +72,7 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, nf_param
 
 #' ## run algorithm on the simulated data
 #' system("mkdir results")
-#' result = BicMixR(data$y,nf=100,a=0.5,b=0.5,itr=5000,out_dir="results",tol=1e-5,x_method="dense",rsd=123)
+#' result = BicMixR(data$y,nf=100,a=0.5,b=0.5,itr=5000,out_dir="results",tol=1e-5,x_method="sparse",rsd=123)
 
 
 #' ## calculate a correlation matrix of the estimated loading matrix 
@@ -85,7 +85,7 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, nf_param
 #' xlab="Recovered loadings",ylab="True loadings")
 #' @references \url{http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004791}
 
-BicMixR <- function(y=y,nf=50,a=0.5,b=0.5,itr=5001,rsd=NULL,out_itr=500,out_dir=NULL, x_method=NULL, tol=NULL){
+BicMixR <- function(y=y,nf=100,a=0.5,b=0.5,itr=5001,rsd=NULL,out_itr=500,out_dir=NULL, x_method=NULL, tol=NULL){
     
     if(is.null(rsd)){
         rsd = sample(1:1000000,1)

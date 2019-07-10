@@ -19,7 +19,7 @@ I found that install_github does not always work. Please install from source (se
 
 ## Usage
 
-BicMixR(data$y,nf=100,a=0.5,b=0.5,itr=5000,out_dir="results",tol=1e-5,x_method="dense",rsd=123) <br/>
+BicMixR(data$y,nf=100,a=0.5,b=0.5,itr=5000,out_dir="results",tol=1e-5,x_method="sparse",rsd=123) <br/>
 
 **Please no headers in the input matrix, no missing values, just pure numbers, ideally quantile normalized** <br/>
 **Also no corrections of confounding beforehand, BicMix will handle that in the dense components** <br/>
@@ -56,7 +56,7 @@ image(t(data$lam),x=1:ncol(data$lam),y=1:nrow(data$lam),xlab="Loadings",ylab="Sa
 \## Visulize the factor matrix <br/>
 image(t(data$ex),x=1:ncol(data$ex),y=1:nrow(data$ex),xlab="Samples",ylab="Factors") <br/>
 \## run algorithm on the simulated data <br/>
-result = BicMixR(data$y,nf=100,a=0.5,b=0.5,itr=5000,out_dir="results",tol=1e-5,x_method="dense",rsd=123) <br/>
+result = BicMixR(data$y,nf=100,a=0.5,b=0.5,itr=5000,out_dir="results",tol=1e-5,x_method="sparse",rsd=123) <br/>
 \## calculate a correlation matrix of the estimated loading matrix and the true loading matrix. Ideally, there should be one and only one big correlation value for a given row and column of the correlation matrix <br/>
 cor.est.real = cor(result$lam[,result$z==1],data$lams) <br/>
 \## visulize the correlation matrix <br/>
