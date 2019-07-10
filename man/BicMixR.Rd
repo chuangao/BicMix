@@ -4,7 +4,7 @@
 \alias{BicMixR}
 \title{An algorithm for decomposing a high dimensional matrix into the product of a sparse loading matrix, and a sparse factor matrix.}
 \usage{
-BicMixR(y = y, nf = 50, a = 0.5, b = 0.5, itr = 5001,
+BicMixR(y = y, nf = 100, a = 0.5, b = 0.5, itr = 5001,
   rsd = NULL, out_itr = 500, out_dir = NULL, x_method = NULL,
   tol = NULL)
 }
@@ -57,7 +57,7 @@ image(t(data$lam),x=1:ncol(data$lam),y=1:nrow(data$lam),xlab="Loadings",ylab="Sa
 image(t(data$ex),x=1:ncol(data$ex),y=1:nrow(data$ex),xlab="Samples",ylab="Factors")
 ## run algorithm on the simulated data
 system("mkdir results")
-result = BicMixR(data$y,nf=100,a=0.5,b=0.5,itr=5000,out_dir="results",tol=1e-5,x_method="dense",rsd=123)
+result = BicMixR(data$y,nf=100,a=0.5,b=0.5,itr=5000,out_dir="results",tol=1e-5,x_method="sparse",rsd=123)
 ## calculate a correlation matrix of the estimated loading matrix 
 ## and the true loading matrix. Ideally, there should be one and 
 ## only one big correlation value for a given row and column of the 
