@@ -19,7 +19,7 @@ I found that install_github failed after I added namespace into the the .C all. 
 
 ## Usage
 
-BicMixR(y = y, nf = 100, itr = 5000) <br/>
+BicMixR(data$y,nf=100,a=0.5,b=0.5,itr=5000,out_dir="results",tol=1e-5,x_method="dense",rsd=123) <br/>
 
 **Please no headers in the input matrix, no missing values, just pure numbers, ideally quantile normalized** <br/>
 **Also no corrections of confounding beforehand, BicMix will handle that in the dense components** <br/>
@@ -28,9 +28,15 @@ BicMixR(y = y, nf = 100, itr = 5000) <br/>
 ### Arguments
 **y** matrix to be decmoposed, no missing values are allowed <br/>
 **nf** the number of factors for the algorithm to start with, will be shrank to a smaller number reflecting the number of factors needed to explain the variance, default to 50 <br/>
+**a** paramater one for the three parameter beta distribution, default to 0.5 to recapitulate horseshoe <br/>
+**b** paramater two for the three parameter beta distribution, default to 0.5 to recapitulate horseshoe <br/>
 **itr** The maximum number of iterations the algorithm is allowed to run, default to 5000 <br/>
-**out_itr** (Optional) the algorithm will write temporary results into the specified directory (see below) every out_itr number of iterations <br/>
+**out_itr** the algorithm will write temporary results into the specified directory (see below) every out_itr number of iterations <br/>
 **out_dir** (Optional) Directory where the algorithm will write temporary results into at the specified iteration number(see above) <br/>
+**rsd** random seed for initializing the parameter values, default to be randomly drawn <br/>
+**x_method** whether induce sparsity on the X matrix, take values either "sparse" or "dense". default to "sparse" <br/>
+**tol** tolerance threshold for convergence, default to 1e-5 <br/>
+
 
 ### Output
 **lam** the sparse loading matrix <br/>
@@ -50,7 +56,7 @@ image(t(data$lam),x=1:ncol(data$lam),y=1:nrow(data$lam),xlab="Loadings",ylab="Sa
 \## Visulize the factor matrix <br/>
 image(t(data$ex),x=1:ncol(data$ex),y=1:nrow(data$ex),xlab="Samples",ylab="Factors") <br/>
 \## run algorithm on the simulated data <br/>
-result = BicMixR(data$y,nf=50,a=0.5,b=0.5,itr=1000) <br/>
+result = BicMixR(data$y,nf=100,a=0.5,b=0.5,itr=5000,out_dir="results",tol=1e-5,x_method="dense",rsd=123) <br/>
 \## calculate a correlation matrix of the estimated loading matrix and the true loading matrix. Ideally, there should be one and only one big correlation value for a given row and column of the correlation matrix <br/>
 cor.est.real = cor(result$lam[,result$z==1],data$lams) <br/>
 \## visulize the correlation matrix <br/>
