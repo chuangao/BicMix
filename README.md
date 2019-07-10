@@ -12,7 +12,7 @@
 
 ## Use devtools to install in R
 
-I found that install_github failed after I added namespace into the the .C all. Please install from source  
+I found that install_github does not always work. Please install from source (see above) is this is the case.  
 
 `library(devtools)` <br/>
 `install_github("chuangao/BicMix")` <br/>
