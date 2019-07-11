@@ -97,7 +97,7 @@ extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, do
     //seed = time (NULL) * getpid();
     //seed = 1000;
     
-    seed = (long)rsd;
+    seed = (long)rsd_in;
     
     ss.str("");
     ss.clear();
@@ -232,24 +232,24 @@ extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, do
             //cout << "count_beta" << endl << count_lam_cov.transpose() << endl;
             cout << "count_x" << endl << count_x.transpose() << endl;
         }
-        if(itr%write_itr==0){
+        if(itr % write_itr == 0){
             //write_final_hidden(out_dir, LAM, Z, EX, EXX, O, PSI, lam_count_v, LAMX, PHI, itr, seed);
 
             // write LAM
             string sin;
-            sin = out_dir + "/LAM_" + std::to_string(write_itr);
+            sin = out_dir + "/LAM_" + std::to_string(itr);
             write_file <MatrixXd> (LAM,sin);
             
-            sin = out_dir + "/Z_" + std::to_string(write_itr);
+            sin = out_dir + "/Z_" + std::to_string(itr);
             write_file <MatrixXd> (Z,sin);
             
-            sin = out_dir + "/EX_" + std::to_string(write_itr);
+            sin = out_dir + "/EX_" + std::to_string(itr);
             write_file <MatrixXd> (EX,sin);
             
-            sin = out_dir + "/EXX_" + std::to_string(write_itr);
+            sin = out_dir + "/EXX_" + std::to_string(itr);
             write_file <MatrixXd> (EXX,sin);
             
-            sin = out_dir + "/PSI_" + std::to_string(write_itr);
+            sin = out_dir + "/PSI_" + std::to_string(itr);
             write_file <VectorXd> (PSI,sin);
         }
         if(itr>10){
