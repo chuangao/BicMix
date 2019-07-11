@@ -36,7 +36,7 @@ BicMixR(data$y,nf=100,a=0.5,b=0.5,itr=5000,out_dir="results",tol=1e-5,x_method="
 **rsd** random seed for initializing the parameter values, default to be randomly drawn <br/>
 **x_method** whether induce sparsity on the X matrix, take values either "sparse" or "dense". default to "sparse" <br/>
 **tol** tolerance threshold for convergence, default to 1e-5 <br/>
-**qnorm** whether to qq-normalize the gene expression matrix, default to TRUE
+**qnorm** whether to qq-normalize the gene expression matrix, default to TRUE <br/>
 
 
 ### Output
