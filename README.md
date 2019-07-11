@@ -23,19 +23,20 @@ BicMixR(data$y,nf=100,a=0.5,b=0.5,itr=5000,out_dir="results",tol=1e-5,x_method="
 
 **Please no headers in the input matrix, no missing values, just pure numbers, ideally quantile normalized** <br/>
 **Also no corrections of confounding beforehand, BicMix will handle that in the dense components** <br/>
-**For a gene expression matrix, it is prefered that each gene is a row and each sample is a column** <br/> 
+**For a gene expression matrix, it is preferred that each gene is a row and each sample is a column** <br/> 
 
 ### Arguments
-**y** matrix to be decmoposed, no missing values are allowed <br/>
+**y** matrix to be decomposed, no missing values are allowed <br/>
 **nf** the number of factors for the algorithm to start with, will be shrank to a smaller number reflecting the number of factors needed to explain the variance, default to 50 <br/>
 **a** paramater one for the three parameter beta distribution, default to 0.5 to recapitulate horseshoe <br/>
 **b** paramater two for the three parameter beta distribution, default to 0.5 to recapitulate horseshoe <br/>
-**itr** The maximum number of iterations the algorithm is allowed to run, default to 5000 <br/>
+**itr** the maximum number of iterations the algorithm is allowed to run, default to 5000 <br/>
 **out_itr** the algorithm will write temporary results into the specified directory (see below) every out_itr number of iterations <br/>
-**out_dir** (Optional) Directory where the algorithm will write temporary results into at the specified iteration number(see above) <br/>
+**out_dir** directory where the algorithm will write temporary results into at the specified iteration number(see above) <br/>
 **rsd** random seed for initializing the parameter values, default to be randomly drawn <br/>
 **x_method** whether induce sparsity on the X matrix, take values either "sparse" or "dense". default to "sparse" <br/>
 **tol** tolerance threshold for convergence, default to 1e-5 <br/>
+**qnorm** whether to qq-normalize the gene expression matrix, default to TRUE
 
 
 ### Output
@@ -44,7 +45,7 @@ BicMixR(data$y,nf=100,a=0.5,b=0.5,itr=5000,out_dir="results",tol=1e-5,x_method="
 **z** a vector indicating whether the corresponding loading is sparse (value of 1) <br/> 
 **o** a vector indicating whether the corresponding factor is sparse (value of 1) <br/> 
 **nf** the number of factors learned by the model <br/>
-**exx** the expected value of the covarance matrix, E(XX^T) <br/>
+**exx** the expected value of the covariance matrix, E(XX^T) <br/>
 **itr** the number of iterations for the algorithm to converge <br/>
 
 ### Example

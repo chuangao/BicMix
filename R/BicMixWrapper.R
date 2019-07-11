@@ -41,7 +41,7 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, nf_param
 
 #' @author Chuan Gao <chuan.gao.cornell@@gmail.com>
 
-#' @param y matrix to be decmoposed, no missing values are allowed
+#' @param y matrix to be decomposed, no missing values are allowed
 #' @param nf the number of factors for the algorithm to start with, will be shrank to a smaller number reflecting the number of factors needed to explain the variance, default to 100
 #' @param a paramater one for the three parameter beta distribution, default to 0.5 to recapitulate horseshoe
 #' @param b paramater two for the three parameter beta distribution, default to 0.5 to recapitulate horseshoe
@@ -51,13 +51,14 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, nf_param
 #' @param rsd random seed for initializing the parameter values, default to be randomly drawn
 #' @param x_method whether induce sparsity on the X matrix, take values either "sparse" or "dense". default to "sparse"
 #' @param tol tolerance threshold for convergence, default to 1e-5
+#' @param qnorm whether to qq-normalize the gene expression matrix, default to TRUE
 
 #' @return lam: the sparse loading matrix
 #' @return ex: the factor matrix
 #' @return z: a vector indicating whether the corresponding loading is sparse (value of 1)
 #' @return o: a vector indicating whether the corresponding factor is sparse (value of 1)
 #' @return nf: the number of factors learned by the model
-#' @return exx: the expected value of the covarance matrix, E(XX^T)
+#' @return exx: the expected value of the covariance matrix, E(XX^T)
 
 #' @examples
 #' library(BicMix)
@@ -65,9 +66,9 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, nf_param
 #' ## loading and factor matrices, where a normal distribution of mean zero
 #' ## is assumed for these values.
 #' data = gen_BicMix_data(std=2)
-#' ## Visulize the loading matrix
+#' ## Visualize the loading matrix
 #' image(t(data$lam),x=1:ncol(data$lam),y=1:nrow(data$lam),xlab="Loadings",ylab="Samples")
-#' ## Visulize the factor matrix
+#' ## Visualize the factor matrix
 #' image(t(data$ex),x=1:ncol(data$ex),y=1:nrow(data$ex),xlab="Samples",ylab="Factors")
 
 #' ## run algorithm on the simulated data
@@ -80,12 +81,16 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, nf_param
 #' ## only one big correlation value for a given row and column of the 
 #' ## correlation matrix if the recovered sparse loadings and the true sparse loadings
 #' cor.est.real = cor(result$lam[,result$z==1],data$lams)
-#' ## visulize the correlation matrix
+#' ## visualize the correlation matrix
 #' image(cor.est.real,x=1:nrow(cor.est.real),y=1:ncol(cor.est.real),
 #' xlab="Recovered loadings",ylab="True loadings")
 #' @references \url{http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004791}
 
-BicMixR <- function(y=y,nf=100,a=0.5,b=0.5,itr=5001,rsd=NULL,out_itr=500,out_dir=NULL, x_method=NULL, tol=NULL){
+BicMixR <- function(y=y,nf=100,a=0.5,b=0.5,itr=5001,rsd=NULL,out_itr=500,out_dir=NULL, x_method=NULL, tol=NULL, qnorm = TRUE){
+    
+    if(qnorm){
+        y <- t(apply(y,1,function(i){return(qqnorm(i,plot=F)$x)}))
+    }
     
     if(is.null(rsd)){
         rsd = sample(1:1000000,1)

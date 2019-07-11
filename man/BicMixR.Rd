@@ -6,10 +6,10 @@
 \usage{
 BicMixR(y = y, nf = 100, a = 0.5, b = 0.5, itr = 5001,
   rsd = NULL, out_itr = 500, out_dir = NULL, x_method = NULL,
-  tol = NULL)
+  tol = NULL, qnorm = TRUE)
 }
 \arguments{
-\item{y}{matrix to be decmoposed, no missing values are allowed}
+\item{y}{matrix to be decomposed, no missing values are allowed}
 
 \item{nf}{the number of factors for the algorithm to start with, will be shrank to a smaller number reflecting the number of factors needed to explain the variance, default to 100}
 
@@ -28,6 +28,8 @@ BicMixR(y = y, nf = 100, a = 0.5, b = 0.5, itr = 5001,
 \item{x_method}{whether induce sparsity on the X matrix, take values either "sparse" or "dense". default to "sparse"}
 
 \item{tol}{tolerance threshold for convergence, default to 1e-5}
+
+\item{qnorm}{whether to qq-normalize the gene expression matrix, default to TRUE}
 }
 \value{
 lam: the sparse loading matrix
@@ -40,7 +42,7 @@ o: a vector indicating whether the corresponding factor is sparse (value of 1)
 
 nf: the number of factors learned by the model
 
-exx: the expected value of the covarance matrix, E(XX^T)
+exx: the expected value of the covariance matrix, E(XX^T)
 }
 \description{
 An algorithm for decomposing a high dimensional matrix into the product of a sparse loading matrix, and a sparse factor matrix.
@@ -51,9 +53,9 @@ library(BicMix)
 ## loading and factor matrices, where a normal distribution of mean zero
 ## is assumed for these values.
 data = gen_BicMix_data(std=2)
-## Visulize the loading matrix
+## Visualize the loading matrix
 image(t(data$lam),x=1:ncol(data$lam),y=1:nrow(data$lam),xlab="Loadings",ylab="Samples")
-## Visulize the factor matrix
+## Visualize the factor matrix
 image(t(data$ex),x=1:ncol(data$ex),y=1:nrow(data$ex),xlab="Samples",ylab="Factors")
 ## run algorithm on the simulated data
 system("mkdir results")
@@ -63,7 +65,7 @@ result = BicMixR(data$y,nf=100,a=0.5,b=0.5,itr=5000,out_dir="results",tol=1e-5,x
 ## only one big correlation value for a given row and column of the 
 ## correlation matrix if the recovered sparse loadings and the true sparse loadings
 cor.est.real = cor(result$lam[,result$z==1],data$lams)
-## visulize the correlation matrix
+## visualize the correlation matrix
 image(cor.est.real,x=1:nrow(cor.est.real),y=1:ncol(cor.est.real),
 xlab="Recovered loadings",ylab="True loadings")
 }
