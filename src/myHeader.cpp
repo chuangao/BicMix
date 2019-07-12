@@ -577,7 +577,7 @@ void red_dim(MatrixXd& EX,MatrixXd& EXX, MatrixXd& LAM, MatrixXd& THETA, MatrixX
 
 void cal_lamx(VectorXd& LAMX, MatrixXd& O, VectorXd& KAPPA, MatrixXd& RHO,MatrixXd& EX, int nf, int d_y, double b, double c){
     Eigen::initParallel();
-#pragma omp parallel for
+    #pragma omp parallel for
     for(int i=0;i<nf;i++){
         double x_sum=0;
         double sum_c=d_y*b*O(0,i)+c-1-0.5*d_y*O(1,i);
@@ -601,7 +601,7 @@ void cal_lamx(VectorXd& LAMX, MatrixXd& O, VectorXd& KAPPA, MatrixXd& RHO,Matrix
 void cal_phi(VectorXd& PHI, MatrixXd& Z, VectorXd& TAU, MatrixXd& DELTA,MatrixXd& LAM, int nf, int s_n, double b, double c, bool cln){
     Eigen::initParallel();
     
-    //#pragma omp parallel for
+    #pragma omp parallel for
     for(int i=0;i<nf;i++){
         double lam_sum=0;
         double sum_c=s_n*b*Z(0,i)+c-1-0.5*s_n*Z(1,i);
@@ -642,7 +642,7 @@ void cal_rho(MatrixXd& RHO, MatrixXd& SIGMA, VectorXd& LAMX, double a, double b,
 void cal_delta(MatrixXd& DELTA,MatrixXd& THETA,VectorXd& PHI,double a, double b,int nf, int s_n, bool cln){
     
     Eigen::initParallel();
-    //#pragma omp parallel for
+    #pragma omp parallel for
     for(int i=0;i<s_n;i++){
         //#pragma omp parallel for
         for(int j=0;j<nf;j++){
@@ -674,7 +674,7 @@ void cal_theta(MatrixXd& THETA,MatrixXd& LAM,MatrixXd& DELTA,double a, int s_n, 
     
     double a23=(2*a-3);
     Eigen::initParallel();
-    //#pragma omp parallel for
+    #pragma omp parallel for
     for(int i=0;i<s_n;i++){
         //#pragma omp parallel for
         for(int j=0;j<nf;j++){
@@ -1170,7 +1170,7 @@ void cal_ex_simple(MatrixXd& EX, MatrixXd& EXX, MatrixXd& LAM, VectorXd& PSI_INV
     MatrixXd ID=MatrixXd::Identity(nf,nf);
     
     //Eigen::initParallel();
-    //#pragma omp parallel for
+    #pragma omp parallel for
     for(int i=0;i<s_n;i++){
         LP.col(i)=LAM.transpose().col(i)*PSI_INV(i);
     }
@@ -1413,7 +1413,7 @@ void cal_z(MatrixXd& logZ,MatrixXd& LOGV,MatrixXd& LAM, MatrixXd& THETA, MatrixX
         logZ(0,i)=LOGV(0,0);
         logZ(1,i)=LOGV(1,0);
         
-        //#pragma omp parallel for
+        #pragma omp parallel for
         for(int j=0;j<s_n;j++){
             if(cln){
                 logZ(0,i)=logZ(0,i)+log_norm(LAM(j,i),0,THETA(j,i))+log_gamma(THETA(j,i),a,DELTA(j,i))+log_gamma(DELTA(j,i),b,PHI(i));
@@ -1451,7 +1451,7 @@ void cal_z(MatrixXd& logZ,MatrixXd& LOGV,MatrixXd& LAM, MatrixXd& THETA, MatrixX
 
 void cal_psi(VectorXd& PSI,MatrixXd& LX, MatrixXd& Y,MatrixXd& LAM, MatrixXd& EXX, int s_n, int d_y){
     Eigen::initParallel();
-    //#pragma omp parallel for
+    #pragma omp parallel for
     for(int i=0;i<s_n;i++){
         //PSI(i,i)=Y.row(i).dot(Y.row(i))-2*(LX.row(i)).dot(Y.row(i))+(LAM.row(i)*EXX).dot(LAM.row(i))+vLXL(i);
         //PSI(i,i)=Y.row(i).dot(Y.row(i))-2*(LX.row(i)).dot(Y.row(i))+(LAM.row(i)*EXX).dot(LAM.row(i));
