@@ -23,6 +23,9 @@
 #include <gsl/gsl_sf_psi.h>
 #include <gsl/gsl_sf_gamma.h>
 #include <unistd.h>
+
+#include <thread>
+
 //#include <unsupported/Eigen/MatrixFunctions>
 
 using namespace Eigen;
@@ -46,6 +49,10 @@ usage
 
 
 extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, double *a_param,double *b_param, int *nf_param, int *itr_param, double *LAM_out, double *EX_out, double *Z_out, double *O_out,double *EXX_out, double *PSI_out, int *nf_out, int *out_itr, char **output_dir,int *rsd, char **x_method, double *tol){
+    
+    unsigned int n_threads = std::thread::hardware_concurrency();
+    
+    omp_set_num_threads(n_threads);
     
     Eigen::initParallel();
     
