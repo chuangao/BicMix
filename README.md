@@ -2,8 +2,7 @@
 
 ###### BicMix is a sparse matrix decomposition tool. Given a matrix Y with dimension of P by N, BicMix decompose it into the product of two sparse matrices LAM and X
 
-###### This is the C++ implementation of BicMixC wrapped in R. It is compiled single threaded. If you want to run multiple threaded, please check the BicMixC package 
-
+###### This is the C++ implementation of BicMixC wrapped in R. It is compiled multiple threaded if installed on linux. 
 
 ## Install from source
 
