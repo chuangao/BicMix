@@ -140,7 +140,7 @@ BicMixR <- function(y=y,nf=100,a=0.5,b=0.5,itr=5001,rsd=NULL,out_itr=500,out_dir
     return(result)
 }
 
-#' Simulate matrix with dimension of 500 x 20. Number of loadings and factors is set to 15, where 10 loadings and 10 factors are sparse. The sparse loadings and factors cotain mostly zeros, and random blocks of nonzero values generated from N(0,std). The dense loadings and factors are also generated from N(0,std). The error matrix is generated from N(0,1).
+#' Simulate matrix with dimension of 1000 x 200. Number of loadings and factors is set to 30, where 20 loadings and 20 factors are sparse. The sparse loadings and factors cotain mostly zeros, and random blocks of nonzero values generated from N(0,std). The dense loadings and factors are also generated from N(0,std). The error matrix is generated from N(0,1).
 
 #' @param std standard deviation for the normal distribution of the non-zero entries of the sparse components
 
@@ -155,22 +155,23 @@ BicMixR <- function(y=y,nf=100,a=0.5,b=0.5,itr=5001,rsd=NULL,out_itr=500,out_dir
 #' @return y: the y matrix calculated as y = lam * ex + err
  
 gen_BicMix_data <- function(std=2){
-    nf.s <- 10
-    nf.d <- 5
+    nf.s <- 20
+    nf.d <- 10
 
-    ng <- 500
+    ng <- 1000
     ns <- 200
 
     nf <- nf.s+nf.d
 
-
     lams <- matrix(0,nrow=ng,ncol=nf.s)
     lamd <- matrix(rnorm(ng*nf.d,0,std),nrow=ng,ncol=nf.d)
 
-    block <- ng/nf.s
+    #block <- ng/nf.s
+    block <- 50
     for(i in 1:nf.s){
-        ne <- sample(20:40,1)
-        lams[(i-1)*block + sample(1:block,ne,replace=F),i] = rnorm(ne,0,std)
+        #ne <- sample(20:40,1)
+	start <- sample(1:(ng-50),1)
+        lams[start + sample(1:block,block,replace=T),i] = rnorm(block,0,std)
     }
     
 
@@ -181,10 +182,12 @@ gen_BicMix_data <- function(std=2){
     
     exs <- matrix(0,ncol=ns,nrow=nf.s)
     exd <- matrix(rnorm(ns*nf.d,0,std),nrow=nf.d,ncol=ns)
-    block <- ns/nf.s
+    #block <- ns/nf.s
+	block = 30
     for(i in 1:nf.s){
-        ne <- sample(10:20,1)
-        exs[i,(i-1)*block + sample(1:block,ne,replace=F)] = rnorm(ne,0,std)
+        #ne <- sample(20:30,1)
+	start <- sample(1:(ns-30),1)
+        exs[i,start + sample(1:block,block,replace=T)] = rnorm(block,0,std)
     }
     
     ex <- as.matrix(rbind(exs,exd))
