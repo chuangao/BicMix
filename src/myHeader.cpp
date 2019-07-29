@@ -788,7 +788,7 @@ void cal_ex(MatrixXd& EX, MatrixXd& LAM,MatrixXd& Y,VectorXd& PSI_INV, MatrixXd&
         }
         
         MatrixXd partVI=MatrixXd::Constant(count_indexALL,count_indexALL,0);
- 	#pragma omp parallel for collapse(2)
+ 	    #pragma omp parallel for collapse(2)
         for(int i1=0;i1<count_indexALL;i1++){
             for(int i2=0;i2<count_indexALL;i2++){
                 partVI(i1,i2)=partV(indexALL(i1),indexALL(i2));
@@ -811,7 +811,7 @@ void cal_ex(MatrixXd& EX, MatrixXd& LAM,MatrixXd& Y,VectorXd& PSI_INV, MatrixXd&
         
         cpy_col_matrix_bak(EX,EXI,indexALL,count_indexALL,j,0);
         EXXI=EXI*EXI.transpose();
- 	#pragma omp parallel for collapse(2)
+ 	    #pragma omp parallel for collapse(2)
         for(int i1=0;i1<count_indexALL;i1++){
             for(int i2=0;i2<count_indexALL;i2++){
                 EXX(indexALL(i1),indexALL(i2)) += EXXI(i1,i2)+vx(i1,i2);
