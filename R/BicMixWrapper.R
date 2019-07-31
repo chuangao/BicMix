@@ -88,14 +88,14 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, nf_param
 
 BicMixR <- function(y=y,nf=100,a=0.5,b=0.5,itr=5001,rsd=NULL,out_itr=500,out_dir=NULL, x_method=NULL, tol=NULL, qnorm = TRUE){
     
-	if(! "preprocessCore" %in% rownames(installed.packages())){
-		source("https://bioconductor.org/biocLite.R")
-   		biocLite("preprocessCore")
-	}
-	library("preprocessCore")
+	#if(! "preprocessCore" %in% rownames(installed.packages())){
+	#	source("https://bioconductor.org/biocLite.R")
+   	#	biocLite("preprocessCore")
+	#}
+	#library("preprocessCore")
 
     if(qnorm){
-	y <- normalize.quantiles(y,copy=TRUE)
+	#y <- normalize.quantiles(y,copy=TRUE)
         y <- t(apply(y,1,function(i){return(qqnorm(i,plot=F)$x)}))
 	#y <- t(apply(y,1,function(i){return(scale(i))}))
     }
