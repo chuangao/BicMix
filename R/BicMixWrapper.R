@@ -86,14 +86,17 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, nf_param
 #' xlab="Recovered loadings",ylab="True loadings")
 #' @references \url{http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004791}
 
-BicMixR <- function(y=y,nf=100,a=0.5,b=0.5,itr=5001,rsd=NULL,out_itr=500,out_dir=NULL, x_method=NULL, tol=NULL, qnorm = TRUE){
+BicMixR <- function(y=NULL,nf=100,a=0.5,b=0.5,itr=5001,rsd=NULL,out_itr=500,out_dir=NULL, x_method=NULL, tol=NULL, qnorm = TRUE){
     
 	#if(! "preprocessCore" %in% rownames(installed.packages())){
 	#	source("https://bioconductor.org/biocLite.R")
    	#	biocLite("preprocessCore")
 	#}
 	#library("preprocessCore")
-
+   if(is.null(y)){
+        stop("Please check documentation for the correct usage of this methods, you are missing an input matrix!")
+    }
+	
     if(qnorm){
 	#y <- normalize.quantiles(y,copy=TRUE)
         y <- t(apply(y,1,function(i){return(qqnorm(i,plot=F)$x)}))
@@ -121,9 +124,7 @@ BicMixR <- function(y=y,nf=100,a=0.5,b=0.5,itr=5001,rsd=NULL,out_itr=500,out_dir
     }
     out_dir2 = out_dir
     out_dir2 = gsub("/","%",out_dir2)
-    if(missing(y)){
-        stop("Please check documentation for the correct usage of this methods, you are missing an input matrix!")
-    }
+ 
     if(is.null(out_dir)){
         out_dir2 = "NULL"
     }else{
