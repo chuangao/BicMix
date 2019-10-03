@@ -1,4 +1,4 @@
-## BicMix (now integrated both SFAmix and BicMix in one, and multithreaded by default)
+## BicMix (now integrated both SFAmix and BicMix, and multithreaded by default)
 
 ###### BicMix is a sparse matrix decomposition tool. Given a matrix Y with dimension of P by N, BicMix decompose it into the product of two sparse matrices LAM and X
 
