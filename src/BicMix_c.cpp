@@ -187,7 +187,7 @@ extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, do
     
     string lam_method = "matrix";
     
-    for(int itr=0;itr<n_itr;itr++){
+    for(int itr=0;itr<=n_itr;itr++){
         
         cal_lam_all(LAM, Y,EX,PSI_INV,EXX,Z,LPL,THETA,PHI, s_n, d_y, nf,
                     a, b, c, d, g, h, GAMMA, ETA, nu, TAU, DELTA, alpha, beta, lam_method);
@@ -258,6 +258,12 @@ extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, do
             
             sin = out_dir + "/PSI_" + std::to_string(itr);
             write_file <VectorXd> (PSI,sin);
+
+		if(x_method_in.compare("sparse") == 0){
+			sin = out_dir + "/O_" + std::to_string(itr);
+            		write_file <MatrixXd> (O,sin);
+            
+		}
         }
         if(itr>10){
             if(abs(det_psi(itr) - det_psi(itr-1)) < tol_in){
@@ -282,6 +288,12 @@ extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, do
                 
                 sin = out_dir + "/PSI";
                 write_file <VectorXd> (PSI,sin);
+
+		if(x_method_in.compare("sparse") == 0){
+			sin = out_dir + "/O";
+            		write_file <MatrixXd> (O,sin);
+            
+		}
                 
                 break;
             }
