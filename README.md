@@ -4,17 +4,17 @@
 
 ###### This is the C++ implementation of BicMixC wrapped in R. It is compiled multiple threaded if installed on linux. 
 
-## Install from source
-
-`git clone https://github.com/chuangao/BicMix` <br/>
-`R CMD INSTALL BicMix` <br/>
-
 ## Use devtools to install in R
 
 I found that install_github does not always work. Please install from source (see above) is this is the case.  
 
 `library(devtools)` <br/>
 `install_github("chuangao/BicMix")` <br/>
+
+## Install from source
+
+`git clone https://github.com/chuangao/BicMix` <br/>
+`R CMD INSTALL BicMix` <br/>
 
 ## Usage
 
