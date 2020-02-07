@@ -6,10 +6,10 @@
 
 ## Use devtools to install in R
 
-I found that install_github does not always work. Please install from source (see below) is this is the case.  
-
 `library(devtools)` <br/>
 `install_github("chuangao/BicMix")` <br/>
+
+I found that install_github does not always work. Please install from source (see below) if this is the case.  
 
 ## Install from source
 
