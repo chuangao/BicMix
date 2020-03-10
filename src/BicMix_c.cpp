@@ -227,7 +227,7 @@ extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, do
         inv_psi_vec(PSI,PSI_INV,s_n);
         
         for(int i=0;i<s_n;i++){
-            det_psi(itr) = det_psi(itr)+log(PSI(i,i));
+            det_psi(itr) = det_psi(itr)+log(PSI(i));
         }
         
         if(itr%10==0){
