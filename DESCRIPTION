@@ -12,3 +12,4 @@ Collate: BicMixWrapper.R
 NeedsCompilation: yes
 Packaged: 2017-10-20 15:23:21 UTC; cg253
 RoxygenNote: 6.1.1
+SystemRequirements: GNU make

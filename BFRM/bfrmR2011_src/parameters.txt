@@ -1,0 +1,47 @@
+#Version 2.0
+
+#data section
+NObservations = 195
+NVariables = 1448
+NLatentFactors = 10
+DataFile = x.txt
+
+#prior section
+#model specifiction
+NonGaussianFactors = 0
+PriorPiStandard = 1
+
+#prior psi
+PriorPsia = 2.0
+PriorPsib = 0.0050
+
+#prior rho
+PriorRhoMean = 0
+PriorRhoN = 20.0
+
+#prior pi
+PriorPiMean = 0.9
+PriorPiN = 10.0
+
+#prior tau
+PriorTauLatenta = 5.0
+PriorTauLatentb = 1.0
+
+#priors on the intercept
+PriorInterceptMean = 0.0
+PriorInterceptVar = 10.0
+
+#evolving mode section
+Evol = 0
+
+#mcmc section
+Burnin = 250
+nMCSamples = 2000
+
+#mornitoring section
+PrintIteration = 1000
+alpha = 1.0
+alphaX = 0.01
+PriorAlphaA = 1.0
+PriorAlphaB = 1.0
+

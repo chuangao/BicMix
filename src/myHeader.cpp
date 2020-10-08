@@ -117,7 +117,7 @@ void convert_row_to_double(MatrixXd& m, double * d, int i_row, int d_y){
     }
 }
 
-
+/*
 void quant_norm(MatrixXd& D, MatrixXd& DN, int s_n, int d_y){
     for(int i=0; i < s_n; i++){
         double* din = new double[d_y];
@@ -151,6 +151,7 @@ void quant_norm(MatrixXd& D, MatrixXd& DN, int s_n, int d_y){
         delete [] p;
     }
 }
+*/
 
 // count the number of samples and the number of genes
 void cal_y_dimensions(string file_y, string sep, int &s_n, int &d_y){
@@ -492,8 +493,6 @@ void red_dim(MatrixXd& EX,MatrixXd& EXX, MatrixXd& LAM, MatrixXd& THETA, MatrixX
         O=O2;
         logO=logO2;
     }
-    
-    
     LPL=LPL2;
     //partV=partV2;
     
@@ -1110,7 +1109,7 @@ void cal_lam(MatrixXd& LAM, MatrixXd& Y,MatrixXd& EX,VectorXd& PSI_INV,MatrixXd&
  
  */
 
-/*
+
 void cal_lam_element_wise(MatrixXd& Y, MatrixXd& LAM, MatrixXd& EX, MatrixXd& THETA, MatrixXd& EXX, MatrixXd& Z, VectorXd& PSI_INV, VectorXd& PHI, int s_n, int nf){
     
     MatrixXd LAM_bak = LAM;
@@ -1135,7 +1134,7 @@ void cal_lam_element_wise(MatrixXd& Y, MatrixXd& LAM, MatrixXd& EX, MatrixXd& TH
         LAMXX = LAMXX  + (LAM.col(i) - LAM_bak.col(i)) * EXX.row(i);
     }
 }
-
+/*
 void cal_lam_element_wise2(MatrixXd& Y, MatrixXd& LAM, MatrixXd& EX, MatrixXd& THETA, MatrixXd& EXX, MatrixXd& Z, VectorXd& PSI_INV, VectorXd& PHI, int s_n, int nf){
     // suspect that cal_lam_element_wise is too slow, because it didn't effectively use the updated the parameters. come up with this version, so that the next element is based on the updated previous parameter values, turned out didn't speed up much.
     
@@ -1498,12 +1497,12 @@ void cal_lam_all(MatrixXd& LAM, MatrixXd& Y,MatrixXd& EX,VectorXd& PSI_INV,Matri
     if(lam_method.compare("matrix") == 0){
         cal_lam(LAM, Y, EX, PSI_INV, EXX, Z, LPL, THETA, PHI, s_n,  d_y, nf);
     }
-    //if(lam_method.compare("element") == 0){
+    if(lam_method.compare("element") == 0){
         
-        //cal_lam_element_wise(Y, LAM, EX, THETA, EXX, Z, PSI_INV, PHI, s_n, nf);
+        cal_lam_element_wise(Y, LAM, EX, THETA, EXX, Z, PSI_INV, PHI, s_n, nf);
         //cal_lam_element_wise(Y, LAM, EX, THETA, EXX, Z, PSI_INV, PHI, s_n, nf);
         
-    //}
+    }
     
 }
 

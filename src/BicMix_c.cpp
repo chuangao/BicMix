@@ -48,7 +48,7 @@ usage
 
 
 
-extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, double *a_param,double *b_param, int *nf_param, int *itr_param, double *LAM_out, double *EX_out, double *Z_out, double *O_out,double *EXX_out, double *PSI_out, int *nf_out, int *out_itr, char **output_dir,int *rsd, char **x_method, double *tol){
+extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, double *a_param, double *b_param, double *c_param, double *d_param, double *e_param, double *f_param, int *interval_param, int *nf_param, int *itr_param, double *LAM_out, double *EX_out, double *Z_out, double *O_out,double *EXX_out, double *PSI_out, int *nf_out, int *out_itr, char **output_dir,int *rsd, char **lam_method, char **x_method, double *tol){
     
     //unsigned int n_threads = std::thread::hardware_concurrency();
     
@@ -58,6 +58,10 @@ extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, do
     
     double a = *a_param;
     double b = *b_param;
+    double c = *c_param;
+    double d = *d_param;
+    double g = *e_param;
+    double h = *f_param;
     int nf = *nf_param;
     int s_n = *nrow_param;
     int d_y = *ncol_param;
@@ -68,12 +72,18 @@ extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, do
     int rsd_in = *rsd;
     
     double tol_in = *tol;
+
+    double alpha=1,beta=1;
+    
+    int interval = *interval_param;
+    
     
     string out_dir = *output_dir;
     std::replace( out_dir.begin(), out_dir.end(), '%', '/');
     
     stringstream ss;
     
+    string lam_method_in = *lam_method;
     string x_method_in = *x_method;
 
     //cout << "a " << a << endl;
@@ -84,10 +94,6 @@ extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, do
     //cout << "a " << a << endl;
     //cout << "a " << a << endl;
     
-    
-    double c=0.5,d=0.5,g=0.5,h=0.5,alpha=1,beta=1;
-    
-    int interval = 1000;
     
     MatrixXd Y=MatrixXd::Constant(s_n,d_y,0);
     
@@ -100,11 +106,11 @@ extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, do
  
     // Declare variables independent of factor number to prepare for the EM algorithm
     
-    long seed;
+   
     //seed = time (NULL) * getpid();
     //seed = 1000;
     
-    seed = (long)rsd_in;
+    long seed = (long)rsd_in;
     
     ss.str("");
     ss.clear();
@@ -185,12 +191,12 @@ extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, do
     
     //cout << "You passed method " << method << endl;
     
-    string lam_method = "matrix";
+    //string lam_method_in = lam_method;
     
     for(int itr=0;itr<=n_itr;itr++){
         
         cal_lam_all(LAM, Y,EX,PSI_INV,EXX,Z,LPL,THETA,PHI, s_n, d_y, nf,
-                    a, b, c, d, g, h, GAMMA, ETA, nu, TAU, DELTA, alpha, beta, lam_method);
+                    a, b, c, d, g, h, GAMMA, ETA, nu, TAU, DELTA, alpha, beta, lam_method_in);
         
         cal_z(logZ, LOGV, LAM,  THETA,  DELTA, PHI,  Z, nf, s_n, a, b, alpha, beta,true);
         

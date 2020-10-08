@@ -1,0 +1,10 @@
+matlab -nojvm -nodisplay -r KSVD Data ../data/Y_nu_0.01.txt param.K=20 param.numIteration=10 param.errorFlag=0 param.L=20 param.preserveDCAtom=0 param.InitializationMethod=DataElements param.displayProgress=0 Dictionary Dictionary.txt output.CoefMatrix=coeff.txt 1>output.output 2>error.out
+
+matlab -nojvm -nodisplay -r KSVD 1>output.out 2>error.out
+
+
+
+matlab -r "nu=$nu[$i];mine"`;
+
+
+matlab -nojvm -nodisplay -r mine_sim 1>output.out 2>error.out

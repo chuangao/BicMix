@@ -1,6 +1,6 @@
 
-BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, nf_param, itr_param, LAM_out, EX_out, Z_out, O_out, EXX_out, PSI_out, nf_out, out_itr, out_dir,rsd, x_method, tol){
-    
+BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, c_param, d_param, e_param, f_param, interval_param, nf_param, itr_param, LAM_out, EX_out, Z_out, O_out, EXX_out, PSI_out, nf_out, out_itr, out_dir,rsd, lam_method, x_method, tol){
+
     Y_TMP_param <- as.numeric(as.character(Y_TMP_param))   
     LAM_out <- rep(0,nrow_param*nf_param)
     EX_out <- rep(0,nf_param*ncol_param)
@@ -11,7 +11,7 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, nf_param
     nf_out <- rep(0,1)
     
     result <- .C ("BicMix",
-                  as.double(Y_TMP_param),as.integer(nrow_param), as.integer(ncol_param), as.double(a_param),as.double(b_param), as.integer(nf_param), as.integer(itr_param), LAM=as.double(LAM_out), EX=as.double(EX_out), Z=as.double(Z_out), O=as.double(O_out),EXX=as.double(EXX_out),PSI=as.double(PSI_out), nf=as.integer(nf_out), as.integer(out_itr), as.character(out_dir),as.integer(rsd),as.character(x_method), as.double(tol),PACKAGE="BicMix")
+                  as.double(Y_TMP_param),as.integer(nrow_param), as.integer(ncol_param), as.double(a_param),as.double(b_param), as.double(c_param),as.double(d_param),as.double(e_param),as.double(f_param), as.integer(interval_param), as.integer(nf_param), as.integer(itr_param), LAM=as.double(LAM_out), EX=as.double(EX_out), Z=as.double(Z_out), O=as.double(O_out),EXX=as.double(EXX_out),PSI=as.double(PSI_out), nf=as.integer(nf_out), as.integer(out_itr), as.character(out_dir),as.integer(rsd),as.character(lam_method), as.character(x_method), as.double(tol),PACKAGE="BicMix")
 
     nf <- result[['nf']][1]
     
@@ -86,7 +86,7 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, nf_param
 #' xlab="Recovered loadings",ylab="True loadings")
 #' @references \url{http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004791}
 
-BicMixR <- function(y=NULL,nf=100,a=0.5,b=0.5,itr=5001,rsd=NULL,out_itr=500,out_dir=NULL, x_method=NULL, tol=NULL, qnorm = TRUE){
+BicMixR <- function(y=NULL,nf=100,a=0.5,b=0.5,c=0.5,d=0.5, e=0.5,f=0.5, interval=200, itr=5001,rsd=NULL,out_itr=500,out_dir=NULL, lam_method=NULL, x_method=NULL, tol=NULL, qnorm = TRUE){
     
 	#if(! "preprocessCore" %in% rownames(installed.packages())){
 	#	source("https://bioconductor.org/biocLite.R")
@@ -118,10 +118,24 @@ BicMixR <- function(y=NULL,nf=100,a=0.5,b=0.5,itr=5001,rsd=NULL,out_itr=500,out_
         cat("x_method can only be sparse or dense\n")
         stop()
     }
+
+    if(is.null(lam_method)){
+        lam_method = "matrix"
+    }
     
+    if(lam_method != "matrix" && lam_method != "element"){
+        ##cat("lam_method can only be matrix or element\n")
+        stop("lam_method can only be matrix or element\n")
+    }
+
+    if(lam_method == "element" && x_method == "sparse"){
+        cat("lam_method can't be element when x_method is sparse\n")
+        stop()
+    }
     if(is.null(tol)){
         tol = 1e-5
     }
+
     out_dir2 = out_dir
     out_dir2 = gsub("/","%",out_dir2)
  
@@ -145,7 +159,7 @@ BicMixR <- function(y=NULL,nf=100,a=0.5,b=0.5,itr=5001,rsd=NULL,out_itr=500,out_
     O_out <- c()
     nf_out <- c()
 
-    result <- BicMix(y,sn,dy,a,b,nf,itr,LAM_out,EX_out,Z_out,O_out,EXX_out, PSI_out, nf_out, out_itr, out_dir2, rsd, x_method, tol)
+    result <- BicMix(y,sn,dy,a,b,c, d, e, f, interval, nf,itr,LAM_out,EX_out,Z_out,O_out,EXX_out, PSI_out, nf_out, out_itr, out_dir2, rsd, lam_method, x_method, tol)
     return(result)
 }
 
@@ -207,6 +221,70 @@ gen_BicMix_data <- function(std=2){
     y <- lam %*% ex + err
     
     return(list(y=y,lams=lams,lamd=lamd,lam=lam,exs=exs,exd=exd,ex=ex))
+}
+
+
+#' Simulate matrix with dimension of 1000 x 200. Number of loadings and factors is set to 30, where 20 loadings and 20 factors are sparse. The sparse loadings and factors cotain mostly zeros, and random blocks of nonzero values generated from N(0,std). The dense loadings and factors are also generated from N(0,std). The error matrix is generated from N(0,1).
+
+#' @param std standard deviation for the normal distribution of the non-zero entries of the sparse components
+
+#' @return a list containing the following
+#' @return lams: the sparse loadings
+#' @return lamd: the dense loadings
+#' @return lam: the loading matrix combining both the sparse and dense loading
+
+#' @return exs: the sparse factors matrix
+#' @return exd: the dense factors matrix
+#' @return ex: the factors matrix combining both the sparse and dense factors
+#' @return y: the y matrix calculated as y = lam * ex + err
+#' @export
+
+
+gen_SFA_data <- function(std=2, rsd = 123, std.err=1, n.effects = 30, nfs = 20, ng = 1000, ns=200, dense=T){
+  set.seed(rsd)
+  
+  nf <- n.effects
+  nfd <- nf - nfs
+  
+  lam <- c()
+  lams <- c()
+  lamd <- c()
+  
+  lams <- matrix(0,nrow=ng,ncol=nfs)
+  
+  ########## simulate lam
+  for(i in 1:nfs){
+    block <- sample(20:60,1)
+    start <- sample(1:(ng-block),1)
+    lams[start + sample(1:block,block,replace=T),i] = rnorm(block,0,std)
+  }
+  
+  if(dense){
+    lamd <- matrix(rnorm(ng*nfd,0,std),nrow=ng,ncol=nfd)
+    lam <- cbind(lams,lamd)
+    #lam <- lam[,sample(1:nf,nf,replace=F)]
+  }else{
+    lam <- lams
+    #lam <- lam[,sample(1:nfs,nfs,replace=F)]
+  }
+  
+  ############### simulate ex
+  if(!dense){
+    nf <- nfs
+  }
+  
+  ex <- matrix(rnorm(ns*nf,0,std),nrow=nf,ncol=ns)
+  
+  ###################### simulate error
+  err <- matrix(rnorm(ng*ns,0,std.err),nrow=ng,ncol=ns)
+  
+  y <- lam %*% ex + err
+  
+  if(dense){
+    return(list(y=y,lams=lams,lamd=lamd,lam=lam,ex=ex, err=err))
+  }else{
+    return(list(y=y,lams=lams,lam=lam,ex=ex, err=err))
+  }
 }
 
 

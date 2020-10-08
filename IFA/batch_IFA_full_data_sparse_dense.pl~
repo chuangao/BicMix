@@ -1,0 +1,262 @@
+$heredoc1 = <<END;
+
+#\$ -S /bin/bash -cwd
+#\$ -o error.out -j y
+#\$ -pe high 8
+#\$ -l highprio
+#\$ -l mem_free=8G 
+END
+
+$heredoc2 = <<END;
+
+./SFA_sparse_dense_opt /nfs/igsp/labs/engelhardtlab/cg148/data/CAP/\$data_i \$fac \$fac 1 FALSE \$seed_i 5000 space \$nu \$out_dir\/genesfull_sparse_dense/\$result \$a \$b \$c \$c \$alpha \$alpha \$learnb \$sparse
+
+END
+
+# The argument are respectively: Yfile,start_factor #, end_factor #,step_of_factor #, header, which_seed, iteration #, separators, pc #, nu, output directory   
+
+#my @data=("HCE_mergedResiduals.20121009.0.txt","HPC_mergedResiduals.20121009.0.txt","HVC_mergedResiduals.20121009.0.txt");
+
+# change result file, input file, iteration number, pc number, 
+
+#my @nu=(1,1e-4,1e-20);
+my $data=("S480RjQ2N_t.dat");
+my $out_dir='/nfs/igsp/labs/engelhardtlab/cg148';
+
+my $nu=1;
+my $a=0.5;
+my $b=0.5;
+my @fac=(4000);
+my @alpha_v=(1);
+my @c_v=(0.5);
+my $n_seed=10;
+
+my $nf=scalar @fac;
+my $n_alpha=scalar @alpha_v;
+my $n_c=scalar @c_v;
+
+my $learnb="FALSE";
+my $sparse="FALSE";
+
+`mkdir $out_dir/genesfull_sparse_dense`;
+for(my $i=0;$i<$n_alpha;$i++){
+    my $alpha=$alpha_v[$i];
+    for(my $j=0;$j<$n_c;$j++){
+	my $c=$c_v[$j];
+	for(my $l=0;$l<$nf;$l++){
+	    my $fac=$fac[$l];
+	    my $result="genesfull_sparse_dense_filepc0_nu${nu}_ab${b}_cd${c}_alphaBeta${alpha}_fac${fac}_learnb${learnb}";
+	    `mkdir $out_dir/genesfull_sparse_dense/$result/`;
+	    for(my $m=0;$m<$n_seed;$m++){
+		my $file="${result}_sd${m}.sh";
+		print "$file\n";
+		open FILE,">$out_dir/genesfull_sparse_dense/$file" or die;
+		print FILE "#!/bin/bash\n\n";
+		print FILE $heredoc1;
+
+        print FILE "out_dir=$out_dir\n";
+		print FILE "data_i=$data\n";
+		print FILE "fac=$fac\n";
+		print FILE "alpha=$alpha\n";
+		print FILE "c=$c\n";
+		#3print FILE "pc=$pc\n";
+		print FILE "nu=$nu\n";
+		print FILE "seed_i=$m\n";
+		print FILE "result=$result\n";
+		print FILE "a=$a\n";
+		print FILE "b=$b\n";
+
+		print FILE "learnb=$learnb\n";
+                print FILE "sparse=$sparse\n";
+
+		print FILE $heredoc2;
+		close FILE;
+		`qsub $out_dir/genesfull_sparse_dense/$file`;
+	    }
+	}
+    }
+}
+
+=pod
+for(my $p=0;$p<1;$p++){
+for(my $k=3;$k<4;$k++){
+    for(my $i=0;$i<1;$i++){
+	`mkdir $data[$i]`;
+	for(my $l=0;$l<1;$l++){
+	    my $result="result_lam_no_bak_filePC0_PC$pc[$p]_itr100_fac2000_nu_".$nu_v[$k]."_a_".$a."_b_".$b[$l];
+	    #my $result="result_filePC0_PC10_itr100_fac500_nu_".$nu_v[$k]."_a_".$a."_b_".$b[$l];
+	    `mkdir $data[$i]/$result`;
+	    for(my $j=0;$j<$n_seed;$j++){
+		my $file="SFA_no_lam_bak".$data[$i]."_pc".$pc[$p]."_nu_".$nu_v[$k]."_a_".$a."_b_".$b[$l]."_seed_".$j.".sh";
+		print "$file\n";
+		open FILE,">$data[$i]/$file" or die;
+		print FILE "#!/bin/bash\n\n";
+		print FILE $heredoc1;
+		
+		print FILE "data_i=$data[$i]\n";
+        print FILE "npc=$pc[$p]\n";
+		print FILE "nu=$nu_v[$k]\n";
+		print FILE "seed_i=$j\n";
+		print FILE "result=$result\n";
+		print FILE "a=$a\n";
+		print FILE "b=$b[$l]";
+		print FILE $heredoc2;
+		close FILE;
+		#`cd $data[$i]`;
+		`qsub $data[$i]/$file`;
+		#`cd ..`;
+	    }
+	}
+    }
+}
+}
+
+=cut
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+=pod
+
+$heredoc2 = <<END;
+
+
+# copy the binary and data files to a local directory
+cp \$HOME/structure/geno_as_factor/simulations/\$PROGRAM.out \$TMPDIR/\$PROGRAM.out
+cp -r \$HOME/structure/geno_as_factor/sim_data/gen_data/\$POP/\$TYPE \$TMPDIR/
+cd \$TMPDIR
+
+mkdir \$PROGRAM
+mkdir \$PROGRAM/\$POP
+mkdir \$PROGRAM/\$POP/\$TYPE
+mkdir \$PROGRAM/\$POP/\$TYPE/temp.\$i
+mkdir \$PROGRAM/\$POP/\$TYPE/output.\$i
+
+./\$PROGRAM.out 1 3 \$TMPDIR/\$TYPE/y.\$i \$TMPDIR/\$TYPE/geno.\$i \$TMPDIR/\$DIR_DEST/temp.\$i/ \$TMPDIR/\$DIR_DEST/output.\$i/
+
+cp -fr \$TMPDIR/\$PROGRAM/\$POP/\$TYPE/* \$HOME/structure/geno_as_factor/simulations/\$PROGRAM/\$POP/\$TYPE/
+
+END
+
+
+my @program=("two_step","eHF");
+#my @program=("eHF");
+my @pop=("pop","no_pop","mix");
+#my @pop=("mix");
+my @type=("null","no_pleit","pleit");
+#my @type=("pleit");
+
+for(my $i=0;$i<2;$i++){
+  my $program=$program[$i];
+  `mkdir $program`;
+  for(my $j=0;$j<3;$j++){
+	my $pop=$pop[$j];
+	`mkdir $program/$pop`;
+	for(my $k=0;$k<3;$k++){
+      my $type=$type[$k];
+      `mkdir $program/$pop/$type`;
+      for(my $m=1;$m<11;$m++){
+		my $file="sim_".$program."_".$pop."_".$type."_".$m.".sh";
+		print "$file\n";
+		open FILE,">$file" or die;
+		print FILE "#!/bin/sh\n\n";
+		print FILE $heredoc1;
+		print FILE "i=$m\nPROGRAM=$program\nPOP=$pop\nTYPE=$type\nDIR_DEST=\$PROGRAM/\$POP/\$TYPE\n";
+		print FILE $heredoc2;
+		close FILE;
+		`nsub $file`;
+      }
+	}
+  }
+}
+
+
+=cut
+
+
+=pod
+
+
+
+$heredoc_vBay = <<END;
+# copy the binary and data files to a local directory
+cp \$HOME/structure/geno_as_factor/simulations/\$PROGRAM.out \$TMPDIR/\$PROGRAM.out
+cp -r \$HOME/structure/geno_as_factor/sim_data/gen_data/\$POP/\$TYPE \$TMPDIR/
+cd \$TMPDIR
+
+mkdir \$PROGRAM
+mkdir \$PROGRAM/\$POP
+mkdir \$PROGRAM/\$POP/\$TYPE
+mkdir \$PROGRAM/\$POP/\$TYPE/temp.\$i
+mkdir \$PROGRAM/\$POP/\$TYPE/output.\$i
+
+./\$PROGRAM.out 1 3 \$TMPDIR/\$TYPE/y_vBay.\$i \$TMPDIR/\$TYPE/geno.\$i \$TMPDIR/\$DIR_DEST/temp.\$i/ \$TMPDIR/\$DIR_DEST/output.\$i/
+
+cp -fr \$TMPDIR/\$PROGRAM/\$POP/\$TYPE/* \$HOME/structure/geno_as_factor/simulations/\$PROGRAM/\$POP/\$TYPE/
+
+END
+
+my @program=("vBay");
+my @pop=("pop","no_pop","mix");
+my @type=("null","no_pleit","pleit");
+
+for(my $i=0;$i<1;$i++){
+    my $program=$program[$i];
+    `mkdir $program`;
+    for(my $j=0;$j<3;$j++){
+        my $pop=$pop[$j];
+        `mkdir $program/$pop`;
+        for(my $k=0;$k<3;$k++){
+            my $type=$type[$k];
+            `mkdir $program/$pop/$type`;
+	    for(my $m=1;$m<11;$m++){
+		my $file="sim_".$program."_".$pop."_".$type."_".$m.".sh";
+		print "$file\n";
+		open FILE,">$file" or die;
+		print FILE "#!/bin/sh\n\n";
+		print FILE $heredoc1;
+		print FILE "i=$m\nPROGRAM=$program\nPOP=$pop\nTYPE=$type\nDIR_DEST=\$PROGRAM/\$POP/\$TYPE\n";
+		print FILE $heredoc_vBay;
+		close FILE;
+		`nsub $file`;
+	    }
+        }
+    }
+}
+
+
+=cut

@@ -1,12 +1,20 @@
 # See Section 1.2.1 "Using 'Makevars'" of Writing R Extensions
 # cran.r-project.org/doc/manuals/R-exts.pdf
- 
-CFLAGS=-g -O3 -DNDEBUG -fpic -pipe -march=x86-64 -ffast-math
+
+## the CXX definition on a mac is located below
+##/Library/Frameworks/R.framework/Resources/etc/Makeconf
+## ~/.R/Makevars
+
+## R package don't allow overide flags, so set it to different names.
+## same goes with what's in the Makefile.
+
+PKG_CC = clang++
+
 PKG_CFLAGS=-I${CURDIR}/ -I${CURDIR}/include/ -I${CURDIR}/include/R/
 PKG_CPPFLAGS=-I${CURDIR}/ -I${CURDIR}/include/ -I${CURDIR}/include/R/
-PKG_LIBS=-L${CURDIR}/lib/ -lgsl -lgslcblas -lm
+PKG_LIBS=-L${CURDIR}/lib/ -Wl,-rpath,${CURDIR}/lib/ -lgsl -lgslcblas -lm
+#LINKER=-L${CURDIR}/lib/ -Wl,-rpath,${CURDIR}/lib/
 
- 
 $(SHLIB): BicMix.so 
 BicMix.so:
-        @($(MAKE) CC="$(CC)")
+        @($(MAKE) PKG_CC="$(PKG_CC)")
