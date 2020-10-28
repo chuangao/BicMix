@@ -4,28 +4,53 @@
 \alias{BicMixR}
 \title{An algorithm for decomposing a high dimensional matrix into the product of a sparse loading matrix, and a sparse factor matrix.}
 \usage{
-BicMixR(y = y, nf = 100, a = 0.5, b = 0.5, itr = 5001,
-  rsd = NULL, out_itr = 500, out_dir = NULL, x_method = NULL,
-  tol = NULL, qnorm = TRUE)
+BicMixR(
+  y = NULL,
+  nf = 100,
+  a = 0.5,
+  b = 0.5,
+  c = 0.5,
+  d = 0.5,
+  e = 0.5,
+  f = 0.5,
+  itr = 5001,
+  rsd = NULL,
+  out_itr = 200,
+  out_dir = NULL,
+  lam_method = NULL,
+  x_method = NULL,
+  tol = NULL,
+  qnorm = TRUE
+)
 }
 \arguments{
-\item{y}{matrix to be decomposed, no missing values are allowed}
+\item{y}{matrix to be decomposed, no missing values are allowed, each row is a feature, each column is a sample}
 
 \item{nf}{the number of factors for the algorithm to start with, will be shrank to a smaller number reflecting the number of factors needed to explain the variance, default to 100}
 
-\item{a}{paramater one for the three parameter beta distribution, default to 0.5 to recapitulate horseshoe}
+\item{a}{first shape parameter for the tpb distribution at the third leve of the hierarchy, default to 0.5 to recapitulate horseshoe}
 
-\item{b}{paramater two for the three parameter beta distribution, default to 0.5 to recapitulate horseshoe}
+\item{b}{second shape parameter for the tpb distribution at the third leve of the hierarchy, default to 0.5 to recapitulate horseshoe}
+
+\item{c}{first shape parameter for the tpb distribution at the second leve of the hierarchy, default to 0.5 to recapitulate horseshoe}
+
+\item{d}{second shape parameter for the tpb distribution at the second leve of the hierarchy, default to 0.5 to recapitulate horseshoe}
+
+\item{e}{first shape parameter for the tpb distribution at the first leve of the hierarchy, default to 0.5 to recapitulate horseshoe}
+
+\item{f}{second shape parameter for the tpb distribution at the first leve of the hierarchy, default to 0.5 to recapitulate horseshoe}
 
 \item{itr}{The maximum number of iterations the algorithm is allowed to run, default to 5000}
 
-\item{rsd}{random seed for initializing the parameter values, default to be randomly drawn}
+\item{rsd}{random seed for initializing the parameter values, default to a randomly drawn number}
 
-\item{out_itr}{Iteration number out_itr, the algorithm will write temporary results into the specified directory (see below) every out_itr number of iterations. default to 500}
+\item{out_itr}{Iteration number at which the algorithm will write temporary results into a specified directory (see below), default to 200}
 
-\item{out_dir}{Directory where the algorithm will write temporary results into at the specified iteration number(see above)}
+\item{out_dir}{Directory where the algorithm will write temporary results into}
 
-\item{x_method}{whether induce sparsity on the X matrix, take values either "sparse" or "dense". default to "sparse"}
+\item{lam_method}{the method used to update the loading matrix, take values either "matrix" or "element".  if "matrix", then all component are updated simultaneously (slower but more stable, don't need as many iterations to converge); if "element", each component is updated sequentially (faster but less stable, and need more iterations to converge), default to "matrix"}
+
+\item{x_method}{whether induce sparsity on the X matrix, take values either "sparse" or "dense". default to "dense"}
 
 \item{tol}{tolerance threshold for convergence, default to 1e-5}
 
@@ -36,9 +61,9 @@ lam: the sparse loading matrix
 
 ex: the factor matrix
 
-z: a vector indicating whether the corresponding loading is sparse (value of 1)
+z: a vector indicating whether the corresponding loading is sparse (value of 1 indicate sparse)
 
-o: a vector indicating whether the corresponding factor is sparse (value of 1)
+o: a vector indicating whether the corresponding factor is sparse (value of 1 indicate sparse)
 
 nf: the number of factors learned by the model
 
@@ -49,6 +74,7 @@ An algorithm for decomposing a high dimensional matrix into the product of a spa
 }
 \examples{
 library(BicMix)
+## Following is an example on how to use BicMix to generate biclusters (sparsity is induced on both the loading and factor matrices)
 ## simulate data, the parameter std specifies the standard error of non-zero entries in the
 ## loading and factor matrices, where a normal distribution of mean zero
 ## is assumed for these values.
@@ -59,7 +85,7 @@ image(t(data$lam),x=1:ncol(data$lam),y=1:nrow(data$lam),xlab="Loadings",ylab="Sa
 image(t(data$ex),x=1:ncol(data$ex),y=1:nrow(data$ex),xlab="Samples",ylab="Factors")
 ## run algorithm on the simulated data
 system("mkdir results")
-result = BicMixR(data$y,nf=100,a=0.5,b=0.5,itr=5000,out_dir="results",tol=1e-5,x_method="sparse",rsd=123)
+result = BicMixR(data$y,nf=100,itr=5000,out_dir="results",tol=1e-5,x_method="sparse",rsd=123)
 ## calculate a correlation matrix of the estimated loading matrix 
 ## and the true loading matrix. Ideally, there should be one and 
 ## only one big correlation value for a given row and column of the 
@@ -68,6 +94,9 @@ cor.est.real = cor(result$lam[,result$z==1],data$lams)
 ## visualize the correlation matrix
 image(cor.est.real,x=1:nrow(cor.est.real),y=1:ncol(cor.est.real),
 xlab="Recovered loadings",ylab="True loadings")
+## Following is an example on how to use BicMix to generate one way clusters (sparsity is induced on the loading matrix, not on the factor matrix)
+data = gen_SFA_data(std=2)
+result = BicMixR(data$y,nf=100,out_dir="results",tol=1e-10,x_method="dense",rsd=123)
 }
 \references{
 \url{http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004791}

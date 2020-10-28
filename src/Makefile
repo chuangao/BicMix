@@ -14,7 +14,7 @@ INCLUDE=-isystem${CURDIR}/ -isystem${CURDIR}/include/ -isystem${CURDIR}/include/
 LIBS=-lgsl -lgslcblas -lm 
 
 
-all: install myHeader.o BicMix.so 
+all: install myHeader.o BicMix.so clean
 
 BicMix.so: BicMix_c.o
 	$(PKG_CC) -shared BicMix_c.o -o BicMix.so $(LINKER) $(LIBS)

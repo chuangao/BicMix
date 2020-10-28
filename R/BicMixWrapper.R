@@ -1,5 +1,5 @@
 
-BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, c_param, d_param, e_param, f_param, interval_param, nf_param, itr_param, LAM_out, EX_out, Z_out, O_out, EXX_out, PSI_out, nf_out, out_itr, out_dir,rsd, lam_method, x_method, tol){
+BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, c_param, d_param, e_param, f_param, nf_param, itr_param, LAM_out, EX_out, Z_out, O_out, EXX_out, PSI_out, nf_out, out_itr, out_dir,rsd, lam_method, x_method, tol){
 
     Y_TMP_param <- as.numeric(as.character(Y_TMP_param))   
     LAM_out <- rep(0,nrow_param*nf_param)
@@ -11,7 +11,7 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, c_param,
     nf_out <- rep(0,1)
     
     result <- .C ("BicMix",
-                  as.double(Y_TMP_param),as.integer(nrow_param), as.integer(ncol_param), as.double(a_param),as.double(b_param), as.double(c_param),as.double(d_param),as.double(e_param),as.double(f_param), as.integer(interval_param), as.integer(nf_param), as.integer(itr_param), LAM=as.double(LAM_out), EX=as.double(EX_out), Z=as.double(Z_out), O=as.double(O_out),EXX=as.double(EXX_out),PSI=as.double(PSI_out), nf=as.integer(nf_out), as.integer(out_itr), as.character(out_dir),as.integer(rsd),as.character(lam_method), as.character(x_method), as.double(tol),PACKAGE="BicMix")
+                  as.double(Y_TMP_param),as.integer(nrow_param), as.integer(ncol_param), as.double(a_param),as.double(b_param), as.double(c_param),as.double(d_param),as.double(e_param),as.double(f_param), as.integer(nf_param), as.integer(itr_param), LAM=as.double(LAM_out), EX=as.double(EX_out), Z=as.double(Z_out), O=as.double(O_out),EXX=as.double(EXX_out),PSI=as.double(PSI_out), nf=as.integer(nf_out), as.integer(out_itr), as.character(out_dir),as.integer(rsd),as.character(lam_method), as.character(x_method), as.double(tol),PACKAGE="BicMix")
 
     nf <- result[['nf']][1]
     
@@ -33,7 +33,12 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, c_param,
     PSI <- result[["PSI"]][1:nrow_param]
     
     #return(result)
-    return(list(lam=LAM,ex=EX,z=Z,o=O,exx=EXX,psi=PSI,nf=nf,rsd=rsd))
+    if(x_method == "dense"){
+        return(list(lam=LAM,ex=EX,z=Z,exx=EXX,psi=PSI,nf=nf,rsd=rsd))
+    }else{
+        return(list(lam=LAM,ex=EX,z=Z,o=O,exx=EXX,psi=PSI,nf=nf,rsd=rsd))
+    }
+    
     ##return(list(LAM=result$LAM_out,EX=result$EX_out))
 }
 
@@ -41,27 +46,33 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, c_param,
 
 #' @author Chuan Gao <chuan.gao.cornell@@gmail.com>
 
-#' @param y matrix to be decomposed, no missing values are allowed
+#' @param y matrix to be decomposed, no missing values are allowed, each row is a feature, each column is a sample
 #' @param nf the number of factors for the algorithm to start with, will be shrank to a smaller number reflecting the number of factors needed to explain the variance, default to 100
-#' @param a paramater one for the three parameter beta distribution, default to 0.5 to recapitulate horseshoe
-#' @param b paramater two for the three parameter beta distribution, default to 0.5 to recapitulate horseshoe
+#' @param a first shape parameter for the tpb distribution at the third leve of the hierarchy, default to 0.5 to recapitulate horseshoe
+#' @param b second shape parameter for the tpb distribution at the third leve of the hierarchy, default to 0.5 to recapitulate horseshoe
+#' @param c first shape parameter for the tpb distribution at the second leve of the hierarchy, default to 0.5 to recapitulate horseshoe
+#' @param d second shape parameter for the tpb distribution at the second leve of the hierarchy, default to 0.5 to recapitulate horseshoe
+#' @param e first shape parameter for the tpb distribution at the first leve of the hierarchy, default to 0.5 to recapitulate horseshoe
+#' @param f second shape parameter for the tpb distribution at the first leve of the hierarchy, default to 0.5 to recapitulate horseshoe
 #' @param itr The maximum number of iterations the algorithm is allowed to run, default to 5000
-#' @param out_itr Iteration number out_itr, the algorithm will write temporary results into the specified directory (see below) every out_itr number of iterations. default to 500
-#' @param out_dir Directory where the algorithm will write temporary results into at the specified iteration number(see above)
-#' @param rsd random seed for initializing the parameter values, default to be randomly drawn
-#' @param x_method whether induce sparsity on the X matrix, take values either "sparse" or "dense". default to "sparse"
+#' @param out_itr Iteration number at which the algorithm will write temporary results into a specified directory (see below), default to 200
+#' @param out_dir Directory where the algorithm will write temporary results into
+#' @param rsd random seed for initializing the parameter values, default to a randomly drawn number
+#' @param lam_method the method used to update the loading matrix, take values either "matrix" or "element".  if "matrix", then all component are updated simultaneously (slower but more stable, don't need as many iterations to converge); if "element", each component is updated sequentially (faster but less stable, and need more iterations to converge), default to "matrix"
+#' @param x_method whether induce sparsity on the X matrix, take values either "sparse" or "dense". default to "dense"
 #' @param tol tolerance threshold for convergence, default to 1e-5
 #' @param qnorm whether to qq-normalize the gene expression matrix, default to TRUE
 
 #' @return lam: the sparse loading matrix
 #' @return ex: the factor matrix
-#' @return z: a vector indicating whether the corresponding loading is sparse (value of 1)
-#' @return o: a vector indicating whether the corresponding factor is sparse (value of 1)
+#' @return z: a vector indicating whether the corresponding loading is sparse (value of 1 indicate sparse)
+#' @return o: a vector indicating whether the corresponding factor is sparse (value of 1 indicate sparse)
 #' @return nf: the number of factors learned by the model
 #' @return exx: the expected value of the covariance matrix, E(XX^T)
 
 #' @examples
 #' library(BicMix)
+#' ## Following is an example on how to use BicMix to generate biclusters (sparsity is induced on both the loading and factor matrices)
 #' ## simulate data, the parameter std specifies the standard error of non-zero entries in the
 #' ## loading and factor matrices, where a normal distribution of mean zero
 #' ## is assumed for these values.
@@ -73,7 +84,7 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, c_param,
 
 #' ## run algorithm on the simulated data
 #' system("mkdir results")
-#' result = BicMixR(data$y,nf=100,a=0.5,b=0.5,itr=5000,out_dir="results",tol=1e-5,x_method="sparse",rsd=123)
+#' result = BicMixR(data$y,nf=100,itr=5000,out_dir="results",tol=1e-5,x_method="sparse",rsd=123)
 
 
 #' ## calculate a correlation matrix of the estimated loading matrix 
@@ -84,9 +95,15 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, c_param,
 #' ## visualize the correlation matrix
 #' image(cor.est.real,x=1:nrow(cor.est.real),y=1:ncol(cor.est.real),
 #' xlab="Recovered loadings",ylab="True loadings")
+
+#' ## Following is an example on how to use BicMix to generate one way clusters (sparsity is induced on the loading matrix, not on the factor matrix)
+#' data = gen_SFA_data(std=2)
+#' result = BicMixR(data$y,nf=100,out_dir="results",tol=1e-10,x_method="dense",rsd=123)
+
 #' @references \url{http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004791}
 
-BicMixR <- function(y=NULL,nf=100,a=0.5,b=0.5,c=0.5,d=0.5, e=0.5,f=0.5, interval=200, itr=5001,rsd=NULL,out_itr=500,out_dir=NULL, lam_method=NULL, x_method=NULL, tol=NULL, qnorm = TRUE){
+
+BicMixR <- function(y=NULL,nf=100,a=0.5,b=0.5,c=0.5,d=0.5, e=0.5,f=0.5, itr=5001,rsd=NULL,out_itr=200,out_dir=NULL, lam_method=NULL, x_method=NULL, tol=NULL, qnorm = TRUE){
     
 	#if(! "preprocessCore" %in% rownames(installed.packages())){
 	#	source("https://bioconductor.org/biocLite.R")
@@ -111,7 +128,7 @@ BicMixR <- function(y=NULL,nf=100,a=0.5,b=0.5,c=0.5,d=0.5, e=0.5,f=0.5, interval
     #set.seed(rsd)
     
     if(is.null(x_method)){
-        x_method = "sparse"
+        x_method = "dense"
     }
     
     if(x_method != "sparse" && x_method != "dense"){
@@ -159,7 +176,7 @@ BicMixR <- function(y=NULL,nf=100,a=0.5,b=0.5,c=0.5,d=0.5, e=0.5,f=0.5, interval
     O_out <- c()
     nf_out <- c()
 
-    result <- BicMix(y,sn,dy,a,b,c, d, e, f, interval, nf,itr,LAM_out,EX_out,Z_out,O_out,EXX_out, PSI_out, nf_out, out_itr, out_dir2, rsd, lam_method, x_method, tol)
+    result <- BicMix(y,sn,dy,a,b,c, d, e, f, nf,itr,LAM_out,EX_out,Z_out,O_out,EXX_out, PSI_out, nf_out, out_itr, out_dir2, rsd, lam_method, x_method, tol)
     return(result)
 }
 
@@ -178,8 +195,8 @@ BicMixR <- function(y=NULL,nf=100,a=0.5,b=0.5,c=0.5,d=0.5, e=0.5,f=0.5, interval
 #' @return y: the y matrix calculated as y = lam * ex + err
  
 gen_BicMix_data <- function(std=2){
-    nf.s <- 20
-    nf.d <- 10
+    nf.s <- 10
+    nf.d <- 5
 
     ng <- 1000
     ns <- 200
@@ -240,7 +257,7 @@ gen_BicMix_data <- function(std=2){
 #' @export
 
 
-gen_SFA_data <- function(std=2, rsd = 123, std.err=1, n.effects = 30, nfs = 20, ng = 1000, ns=200, dense=T){
+gen_SFA_data <- function(std=2, rsd = 123, std.err=1, n.effects = 15, nfs = 10, ng = 1000, ns=200, dense=T){
   set.seed(rsd)
   
   nf <- n.effects

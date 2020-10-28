@@ -38,17 +38,10 @@ using Eigen::MatrixXd;
 Chuan Gao C++
 */
 
-/* 
-usage
-./bicluster_mixture_simul_up --nf 50 --y ./sim_data/Bicluster/Y_noise1_2.txt --out result --sep space --interval 100 --a 0.5 --b 0.5
-./bicluster_mixture_simul_up --nf 50 --y /gpfs/fs0/data/engelhardtlab/cg148/data/CAP/S480RjQ2N_t_noCrossHyb.dat --out result --sep space --interval 50
-./bicluster_mixture_simul_up --nf 100 --y /nfs/labs/engelhardtlab/cg148/data/hm3/HM3_gex_raw.t.txt --out result --sep tab
-./bicluster_mixture_simul_up --nf 100 --y /nfs/labs/engelhardtlab/cg148/data/genotypes/hapmap2/hapmap.sfa --out result --sep space
-*/
 
 
 
-extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, double *a_param, double *b_param, double *c_param, double *d_param, double *e_param, double *f_param, int *interval_param, int *nf_param, int *itr_param, double *LAM_out, double *EX_out, double *Z_out, double *O_out,double *EXX_out, double *PSI_out, int *nf_out, int *out_itr, char **output_dir,int *rsd, char **lam_method, char **x_method, double *tol){
+extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, double *a_param, double *b_param, double *c_param, double *d_param, double *e_param, double *f_param, int *nf_param, int *itr_param, double *LAM_out, double *EX_out, double *Z_out, double *O_out,double *EXX_out, double *PSI_out, int *nf_out, int *out_itr, char **output_dir,int *rsd, char **lam_method, char **x_method, double *tol){
     
     //unsigned int n_threads = std::thread::hardware_concurrency();
     
@@ -74,9 +67,7 @@ extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, do
     double tol_in = *tol;
 
     double alpha=1,beta=1;
-    
-    int interval = *interval_param;
-    
+        
     
     string out_dir = *output_dir;
     std::replace( out_dir.begin(), out_dir.end(), '%', '/');

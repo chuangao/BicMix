@@ -47,7 +47,8 @@ run_sim <- function(param.config, itr=2001, inputDir=NULL, outputDir = NULL, scr
             outputDir.sfamix=file.path(outputDir,"sfamix")
             dir.create(outputDir.sfamix)
             
-            results <- BicMixR(y=data$y, nf = 50, out_dir=outputDir.sfamix, rsd = 123, tol=1e-10, itr = 2001)
+            results <- BicMixR(y=data$y, nf = 50, out_dir=outputDir.sfamix, rsd = 123, tol=1e-10, itr = 2001, lam_method="matrix",x_method="dense")
+            
             lam <- results$lam
             z <- results$z
             lams <- lam[,z>0.8,drop=F]
@@ -165,8 +166,6 @@ run_sim <- function(param.config, itr=2001, inputDir=NULL, outputDir = NULL, scr
         }else{
             return(list(score.sparse=score.sparse.all, score.dense=data.frame(param,score.dense = NA,score.dense.precis = NA, nfs=nfs.o,nfd=nfd.o)))
         }
-        
-        
     },mc.cores = mc.cores)
     return(results)
 }

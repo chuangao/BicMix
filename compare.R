@@ -19,11 +19,12 @@ library(dplyr)
 library(ggpubr)
 library(reshape2)
 library("ggsci")
+library(BicMix)
 
 #library(BicMix)
 #library(BicMix2)
 library(PMA)
-numCores <- 6
+numCores <- 10
 
 #library(knitr)
 #require(markdown)
@@ -65,8 +66,8 @@ dy <- 200
 ng=sn
 ns=dy
 
-nfs = 20
-nf = 30
+nfs = 10
+nf = 15
 
 a=0.5
 #b=1000000
@@ -83,17 +84,28 @@ source("./util.R")
 
 #method <- "BicMix2"
 
-script.path = "./"
+script.path = "/Users/cg253/BicMix/"
 matlab.path = "/Applications/Matlab_R2019b.app/bin/matlab"
-bfrm.path="./BFRM/bfrm"
-outputDir = './AOAS/table'
-inputDir= './AOAS/data'
+bfrm.path="/Users/cg253/BicMix/BFRM/bfrm"
+outputDir = '/Users/cg253//BicMix/AOAS/table'
+inputDir= '/Users/cg253/BicMix/AOAS/data'
 dir.create(inputDir)
 
 
 itr <- 2001
 #res <- run_sim(param.config[param.config$method == method & param.config$dense == TRUE,][1,], nfs=nfs, nf=nf, ng= ng, ns=ns, itr = itr)
-res <- run_sim(param.config, itr = itr, inputDir=inputDir, outputDir = outputDir, script.path = script.path, bfrm.path=bfrm.path, matlab.path = matlab.path, nfs=nfs, nf=nf, ng=sn, ns=dy, mc.cores = 10)
+itr = itr
+inputDir=inputDir
+outputDir
+script.path = script.path
+bfrm.path=bfrm.path
+matlab.path = matlab.path
+nfs=nfs
+ng=sn
+ns=dy
+mc.cores = 10
+
+res <- run_sim(param.config[1,], itr = itr, inputDir=inputDir, outputDir = outputDir, script.path = script.path, bfrm.path=bfrm.path, matlab.path = matlab.path, nfs=nfs, nf=nf, ng=sn, ns=dy, mc.cores = 10)
 #results <- res[[1]]
 #count.prob <- apply(results$z,2,function(x){return(sum(x > 0.5)/sn)})
 
