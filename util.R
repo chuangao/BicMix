@@ -24,21 +24,14 @@ run_sim <- function(param.config, itr=2001, inputDir=NULL, outputDir = NULL, scr
         
         print(i)
         print(param)
-
-        data=gen_SFA_data(std=2, rsd = i.seed, std.err=std.err, n.effects = nf, nfs=nfs, ng=ng,ns=ns,dense=dense)
-                  #function(std=2, rsd = 123, std.err=1, n.effects = 30, nfs = 20, ng = 1000, ns=200, dense=T)
+        type.loading="mixture"
+        if(!dense){type.loading="sparse"}
+        data=gen_BicMix_data(std=2, rsd = i.seed, std.err=std.err, nf = nf, nfs=nfs, ng=ng,ns=ns,type.loading=type.loading,type.factor="dense")
+        #std=2, rsd = 123, std.err=1, nf = 15, nfs = 10, ng = 1000, ns=200, type.loading="mixture",type.factor="dense"
         data.file.name <- paste(paste0(names(param)[names(param) != "method"],param[names(param) != "method"]),collapse="_")
         data.file.name=paste0(data.file.name,".txt")
         write.table(data$y,file.path(inputDir,data.file.name),col.names=F,row.names=F)
 
-        #param2 <- data.frame(n.effects=n.effects, std.err=std.err,seed=i.seed, std.effect = std.effect, dense=dense)
-        
-        #file.name <-  paste(paste0(names(param2),param2[1,]),collapse="_")    
-     
-        #c=a;g=a;
-        #d=round(b/2);h=round(b/2);
-
-        #b = 10000000
         lams <- NULL
         lamd <- NULL
         z <- NULL
@@ -69,8 +62,6 @@ run_sim <- function(param.config, itr=2001, inputDir=NULL, outputDir = NULL, scr
             res <- c()
             if(dense){
                 res <- ksvd(inputDir=inputDir,inputFileName=data.file.name,n=ns,p=ng,k=nf,outputDir=outputDir.ksvd,scriptFile=file.path(script.path, 'KSVD/mine_sim.m'),matlabWhere=matlab.path)
-                ksvd(inputDir=inputDir,inputFileName=data.file.name,n=ns,p=ng,k=nf,outputDir=outputDir.ksvd,scriptFile=file.path(script.path, 'KSVD/mine_sim.m'),matlabWhere=matlab.path)
-                #inputDir=NULL,inputFileName=NULL,n=NA,p=NA,k=NA, outputDir=NULL,scriptFile=NULL,matlabWhere
             }else{
                 res <- ksvd(inputDir=inputDir,inputFileName=data.file.name,n=ns,p=ng,k=nfs,outputDir=outputDir.ksvd,scriptFile=file.path(script.path, 'KSVD/mine_sim.m'),matlabWhere=matlab.path)
             }
@@ -141,9 +132,9 @@ run_sim <- function(param.config, itr=2001, inputDir=NULL, outputDir = NULL, scr
         if(length(lams) == 0){
             score.sparse <- NA
         }else{
-            corr.sparse <- cor(lams,data$lams)
-            score.sparse <- cal_score_sparse(corr.sparse)
-            score.sparse.precis <- cal_score_sparse(corr.sparse,precis=TRUE)
+            #corr.sparse <- cor(lams,data$lams)
+            score.sparse <- cal_score_sparse(lams,data$lams)
+            score.sparse.precis <- cal_score_sparse(lams,data$lams, precis=TRUE)
         }
         score.sparse.all <- data.frame(param,score.sparse = score.sparse,score.sparse.precis = score.sparse.precis, nfs=nfs.o,nfd=nfd.o)
 
@@ -170,88 +161,6 @@ run_sim <- function(param.config, itr=2001, inputDir=NULL, outputDir = NULL, scr
     return(results)
 }
 
-
-cal_score_sparse <- function(sigma, precis = FALSE){
-
-    sigma <- abs(sigma)
-    nr <- nrow(sigma)
-    nc <- ncol(sigma)
-
-    r1 <- apply(sigma,1,function(x){
-        xm <- max(x)
-        x <- x[x!=max(x)]
-        return(xm - mean(x[x>=mean(x)]))
-    })
-    r1 <- as.numeric(r1)
-
-    r2 <- 0
-    if(nrow(sigma) > 1){
-        r2 <- apply(sigma,2,function(x){
-            xm <- max(x)
-            x <- x[x!=max(x)]
-            return(xm - mean(x[x>=mean(x)]))  
-        })
-    }
-    r2 <- as.numeric(r2)
-
-    nf <- min(nc,nr)
-    o1 <- order(r1,decreasing=T)    
-    o2 <- order(r2,decreasing=T)
-
-    r <- (mean(r1)+mean(r2))/2
-    if(precis){
-        r <- (mean(r1[o1[1:nf]]) + mean(r2[o2[1:nf]]))/2
-    }
-    return(r)
-}
-
-cal_score_dense <- function(m1,m2,precis=FALSE){
-    
-    m1 <- apply(m1,2,function(x){scale(x)})
-    m2 <- apply(m2,2,function(x){scale(x)})
-    
-    if(precis){
-        cr <- cor(m1,m2)
-        cr <- abs(cr)
-        nr <- nrow(cr)
-        nc <- ncol(cr)
-        nf <- min(nr,nc)
-        maxr <- apply(cr,1,max)
-        maxc <- apply(cr,2,max)
-        o.r <- order(maxr,decreasing=T)
-        o.c <- order(maxc,decreasing=T)
-        if(nr > nc){
-            m1 <- m1[,o.r[1:nc]]
-        }else{
-            m2 <- m2[,o.c[1:nr]]
-        }
-    }
-    sigma <- m1 %*% t(m1) - m2 %*% t(m2)
-    r <- sum(diag(sigma * sigma))/nrow(sigma)/nrow(sigma)
-    return(r)
-}
-
-gen_bulk_data <- function(param.config, output.dir = "data"){
-    mclapply(1:nrow(param.config),function(i){
-        #cat(i,"\n")
-        #write.table(i,file.path(output.dir,"itr.txt"))
-        
-        n.effects <- param.config[i,"n.effects"]
-        std.err <- param.config[i,"std.err"]
-        i.seed <- param.config[i,"seed"]
-        method <- param.config[i,"method"]
-        std.effect <- param.config[i,"std.effect"]
-        b <- param.config[i,"b"]
-        dense <- as.logical(as.character(param.config[i,"dense"]))
-
-        param <- data.frame(n.effects=n.effects, std.err=std.err,seed=i.seed, std.effect = std.effect,dense=dense)
-        
-        data=gen_SFA_data(std=2, rsd = i.seed, std.err=std.err, n.effects = 30, nfs = 20, ng=1000,ns=500)
-        file.name <- paste(paste0(names(param),param[1,]),collapse="_")
-        
-        write.table(data$y,file.path(output.dir,paste0(file.name,".txt")),col.names=F,row.names=F)
- },mc.cores = 10)
-}
 
 extract_res <- function(results){
     
@@ -297,131 +206,6 @@ cal_quant <- function(df){
         tp = tp.map.to.prob
     )
     return(d)
-}
-
-
-#' Simulate matrix with dimension of 1000 x 200. Number of loadings and factors is set to 30, where 20 loadings and 20 factors are sparse. The sparse loadings and factors cotain mostly zeros, and random blocks of nonzero values generated from N(0,std). The dense loadings and factors are also generated from N(0,std). The error matrix is generated from N(0,1).
-
-#' @param std standard deviation for the normal distribution of the non-zero entries of the sparse components
-
-#' @return a list containing the following
-#' @return lams: the sparse loadings
-#' @return lamd: the dense loadings
-#' @return lam: the loading matrix combining both the sparse and dense loading
-
-#' @return exs: the sparse factors matrix
-#' @return exd: the dense factors matrix
-#' @return ex: the factors matrix combining both the sparse and dense factors
-#' @return y: the y matrix calculated as y = lam * ex + err
- 
-gen_BicMix_data <- function(std=2){
-    nf.s <- 20
-    nf.d <- 10
-
-    ng <- 1000
-    ns <- 200
-
-    nf <- nf.s+nf.d
-
-    lams <- matrix(0,nrow=ng,ncol=nf.s)
-    lamd <- matrix(rnorm(ng*nf.d,0,std),nrow=ng,ncol=nf.d)
-
-    #block <- ng/nf.s
-    block <- 50
-    for(i in 1:nf.s){
-        #ne <- sample(20:40,1)
-	start <- sample(1:(ng-50),1)
-        lams[start + sample(1:block,block,replace=T),i] = rnorm(block,0,std)
-    }
-    
-
-    lam <- as.matrix(cbind(lams,lamd))
-
-    lam <- lam[,sample(1:nf,nf,replace=F)]
-    
-    
-    exs <- matrix(0,ncol=ns,nrow=nf.s)
-    exd <- matrix(rnorm(ns*nf.d,0,std),nrow=nf.d,ncol=ns)
-    #block <- ns/nf.s
-	block = 30
-    for(i in 1:nf.s){
-        #ne <- sample(20:30,1)
-	start <- sample(1:(ns-30),1)
-        exs[i,start + sample(1:block,block,replace=T)] = rnorm(block,0,std)
-    }
-    
-    ex <- as.matrix(rbind(exs,exd))
-    ex <- ex[sample(1:nf,nf,replace=F),]
-    
-    err <- matrix(rnorm(ng*ns),nrow=ng,ncol=ns)
-
-    y <- lam %*% ex + err
-    
-    return(list(y=y,lams=lams,lamd=lamd,lam=lam,exs=exs,exd=exd,ex=ex))
-}
-
-
-#' Simulate matrix with dimension of 1000 x 200. Number of loadings and factors is set to 30, where 20 loadings and 20 factors are sparse. The sparse loadings and factors cotain mostly zeros, and random blocks of nonzero values generated from N(0,std). The dense loadings and factors are also generated from N(0,std). The error matrix is generated from N(0,1).
-
-#' @param std standard deviation for the normal distribution of the non-zero entries of the sparse components
-
-#' @return a list containing the following
-#' @return lams: the sparse loadings
-#' @return lamd: the dense loadings
-#' @return lam: the loading matrix combining both the sparse and dense loading
-
-#' @return exs: the sparse factors matrix
-#' @return exd: the dense factors matrix
-#' @return ex: the factors matrix combining both the sparse and dense factors
-#' @return y: the y matrix calculated as y = lam * ex + err
-#' @export
-
-
-gen_SFA_data <- function(std=2, rsd = 123, std.err=1, n.effects = 30, nfs = 20, ng = 1000, ns=200, dense=T){
-  set.seed(rsd)
-  
-  nf <- n.effects
-  nfd <- nf - nfs
-  
-  lam <- c()
-  lams <- c()
-  lamd <- c()
-  
-  lams <- matrix(0,nrow=ng,ncol=nfs)
-  
-  ########## simulate lam
-  for(i in 1:nfs){
-    block <- sample(20:60,1)
-    start <- sample(1:(ng-block),1)
-    lams[start + sample(1:block,block,replace=T),i] = rnorm(block,0,std)
-  }
-  
-  if(dense){
-    lamd <- matrix(rnorm(ng*nfd,0,std),nrow=ng,ncol=nfd)
-    lam <- cbind(lams,lamd)
-    #lam <- lam[,sample(1:nf,nf,replace=F)]
-  }else{
-    lam <- lams
-    #lam <- lam[,sample(1:nfs,nfs,replace=F)]
-  }
-  
-  ############### simulate ex
-  if(!dense){
-    nf <- nfs
-  }
-  
-  ex <- matrix(rnorm(ns*nf,0,std),nrow=nf,ncol=ns)
-  
-  ###################### simulate error
-  err <- matrix(rnorm(ng*ns,0,std.err),nrow=ng,ncol=ns)
-  
-  y <- lam %*% ex + err
-  
-  if(dense){
-    return(list(y=y,lams=lams,lamd=lamd,lam=lam,ex=ex, err=err))
-  }else{
-    return(list(y=y,lams=lams,lam=lam,ex=ex, err=err))
-  }
 }
 
 

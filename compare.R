@@ -47,7 +47,7 @@ dir.create(data.path)
 
 #stashDirCreate(results.path, otherrx=FALSE, grouprx=TRUE)
 
-n.effects.list <- c(30)
+n.effects.list <- c(15)
 #std.err.list <- c(1, 2, 3, 4, 5)
 std.err.list <- c(1,3,5)
 
@@ -105,7 +105,9 @@ ng=sn
 ns=dy
 mc.cores = 10
 
-res <- run_sim(param.config[1,], itr = itr, inputDir=inputDir, outputDir = outputDir, script.path = script.path, bfrm.path=bfrm.path, matlab.path = matlab.path, nfs=nfs, nf=nf, ng=sn, ns=dy, mc.cores = 10)
+i=13
+
+res <- run_sim(param.config[i,], itr = itr, inputDir=inputDir, outputDir = outputDir, script.path = script.path, bfrm.path=bfrm.path, matlab.path = matlab.path, nfs=nfs, nf=nf, ng=sn, ns=dy, mc.cores = 10)
 #results <- res[[1]]
 #count.prob <- apply(results$z,2,function(x){return(sum(x > 0.5)/sn)})
 

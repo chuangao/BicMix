@@ -9,3 +9,5 @@ useDynLib(BicMix)
 # Export functions defined in R code
 export("BicMixR")
 export("gen_BicMix_data")
+export("cal_score_sparse")
+export("cal_score_dense")

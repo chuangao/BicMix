@@ -17,9 +17,9 @@ BicMixR(
   rsd = NULL,
   out_itr = 200,
   out_dir = NULL,
-  lam_method = NULL,
-  x_method = NULL,
-  tol = NULL,
+  lam_method = "matrix",
+  x_method = "dense",
+  tol = 1e-10,
   qnorm = TRUE
 )
 }
@@ -54,7 +54,7 @@ BicMixR(
 
 \item{tol}{tolerance threshold for convergence, default to 1e-5}
 
-\item{qnorm}{whether to qq-normalize the gene expression matrix, default to TRUE}
+\item{qnorm}{whether to qq-normalize the gene expression matrix, default to FALSE}
 }
 \value{
 lam: the sparse loading matrix
@@ -78,14 +78,15 @@ library(BicMix)
 ## simulate data, the parameter std specifies the standard error of non-zero entries in the
 ## loading and factor matrices, where a normal distribution of mean zero
 ## is assumed for these values.
-data = gen_BicMix_data(std=2)
+data = gen_BicMix_data(std=2, type.factor="mixture")
 ## Visualize the loading matrix
 image(t(data$lam),x=1:ncol(data$lam),y=1:nrow(data$lam),xlab="Loadings",ylab="Samples")
 ## Visualize the factor matrix
 image(t(data$ex),x=1:ncol(data$ex),y=1:nrow(data$ex),xlab="Samples",ylab="Factors")
 ## run algorithm on the simulated data
 system("mkdir results")
-result = BicMixR(data$y,nf=100,itr=5000,out_dir="results",tol=1e-5,x_method="sparse",rsd=123)
+result = BicMixR(data$y,nf=100,out_dir="results",tol=1e-10,x_method="sparse",rsd=123)
+cal_score_sparse(result$lam[,result$z>0.9],data$lams)
 ## calculate a correlation matrix of the estimated loading matrix 
 ## and the true loading matrix. Ideally, there should be one and 
 ## only one big correlation value for a given row and column of the 
@@ -95,8 +96,9 @@ cor.est.real = cor(result$lam[,result$z==1],data$lams)
 image(cor.est.real,x=1:nrow(cor.est.real),y=1:ncol(cor.est.real),
 xlab="Recovered loadings",ylab="True loadings")
 ## Following is an example on how to use BicMix to generate one way clusters (sparsity is induced on the loading matrix, not on the factor matrix)
-data = gen_SFA_data(std=2)
+data = gen_BicMix_data(std=2, type.factor="dense", rsd = 123)
 result = BicMixR(data$y,nf=100,out_dir="results",tol=1e-10,x_method="dense",rsd=123)
+cal_score_sparse(result$lam[,result$z>0.9],data$lams)
 }
 \references{
 \url{http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004791}

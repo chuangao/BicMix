@@ -1,5 +1,8 @@
 bfrm <- function(inputDir=NULL, inputFileName=NULL,n=NA,p=NA,k=NA, outputDir=NULL,scriptFile=NULL,bfrmWhere){
-
+    
+    outputDir <- normalizePath(outputDir)
+    inputDir <- normalizePath(inputDir)
+    
     script <- readLines(scriptFile)
 
     inputFile2 <- file.path(inputDir,paste0(inputFileName))

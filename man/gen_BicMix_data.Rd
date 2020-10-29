@@ -2,12 +2,38 @@
 % Please edit documentation in R/BicMixWrapper.R
 \name{gen_BicMix_data}
 \alias{gen_BicMix_data}
-\title{Simulate matrix with dimension of 1000 x 200. Number of loadings and factors is set to 30, where 20 loadings and 20 factors are sparse. The sparse loadings and factors cotain mostly zeros, and random blocks of nonzero values generated from N(0,std). The dense loadings and factors are also generated from N(0,std). The error matrix is generated from N(0,1).}
+\title{Simulate a matrix y = lam * ex + err}
 \usage{
-gen_BicMix_data(std = 2)
+gen_BicMix_data(
+  std = 2,
+  rsd = NULL,
+  std.err = 1,
+  nf = 15,
+  nfs = 10,
+  ng = 500,
+  ns = 300,
+  type.loading = "mixture",
+  type.factor = "dense"
+)
 }
 \arguments{
-\item{std}{standard deviation for the normal distribution of the non-zero entries of the sparse components}
+\item{std}{standard deviation for the normal distribution of the non-zero entries of the sparse loading}
+
+\item{rsd}{random seed}
+
+\item{std.err}{standard deviation of the error term}
+
+\item{nf}{total number of the loadings}
+
+\item{nfs}{number of the sparse loadings}
+
+\item{ng}{number of genes}
+
+\item{ns}{number of samples}
+
+\item{type.loading}{type of loading matrix wanted, "mixture" for a matrix mixed with sparse and dense components, "sparse" for a matrix with only sparse components}
+
+\item{type.factor}{type of factor matrix wanted, "mixture" for a matrix mixed with sparse and dense components, "dense" for a matrix with only dense components}
 }
 \value{
 a list containing the following
@@ -18,14 +44,12 @@ lamd: the dense loadings
 
 lam: the loading matrix combining both the sparse and dense loading
 
-exs: the sparse factors matrix
-
-exd: the dense factors matrix
-
 ex: the factors matrix combining both the sparse and dense factors
+
+err: matrix of the error term
 
 y: the y matrix calculated as y = lam * ex + err
 }
 \description{
-Simulate matrix with dimension of 1000 x 200. Number of loadings and factors is set to 30, where 20 loadings and 20 factors are sparse. The sparse loadings and factors cotain mostly zeros, and random blocks of nonzero values generated from N(0,std). The dense loadings and factors are also generated from N(0,std). The error matrix is generated from N(0,1).
+Simulate a matrix y = lam * ex + err
 }

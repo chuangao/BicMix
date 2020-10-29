@@ -61,7 +61,7 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, c_param,
 #' @param lam_method the method used to update the loading matrix, take values either "matrix" or "element".  if "matrix", then all component are updated simultaneously (slower but more stable, don't need as many iterations to converge); if "element", each component is updated sequentially (faster but less stable, and need more iterations to converge), default to "matrix"
 #' @param x_method whether induce sparsity on the X matrix, take values either "sparse" or "dense". default to "dense"
 #' @param tol tolerance threshold for convergence, default to 1e-5
-#' @param qnorm whether to qq-normalize the gene expression matrix, default to TRUE
+#' @param qnorm whether to qq-normalize the gene expression matrix, default to FALSE
 
 #' @return lam: the sparse loading matrix
 #' @return ex: the factor matrix
@@ -76,7 +76,7 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, c_param,
 #' ## simulate data, the parameter std specifies the standard error of non-zero entries in the
 #' ## loading and factor matrices, where a normal distribution of mean zero
 #' ## is assumed for these values.
-#' data = gen_BicMix_data(std=2)
+#' data = gen_BicMix_data(std=2, type.factor="mixture")
 #' ## Visualize the loading matrix
 #' image(t(data$lam),x=1:ncol(data$lam),y=1:nrow(data$lam),xlab="Loadings",ylab="Samples")
 #' ## Visualize the factor matrix
@@ -84,8 +84,8 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, c_param,
 
 #' ## run algorithm on the simulated data
 #' system("mkdir results")
-#' result = BicMixR(data$y,nf=100,itr=5000,out_dir="results",tol=1e-5,x_method="sparse",rsd=123)
-
+#' result = BicMixR(data$y,nf=100,out_dir="results",tol=1e-10,x_method="sparse",rsd=123)
+#' cal_score_sparse(result$lam[,result$z>0.9],data$lams)
 
 #' ## calculate a correlation matrix of the estimated loading matrix 
 #' ## and the true loading matrix. Ideally, there should be one and 
@@ -97,13 +97,14 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, c_param,
 #' xlab="Recovered loadings",ylab="True loadings")
 
 #' ## Following is an example on how to use BicMix to generate one way clusters (sparsity is induced on the loading matrix, not on the factor matrix)
-#' data = gen_SFA_data(std=2)
+#' data = gen_BicMix_data(std=2, type.factor="dense", rsd = 123)
 #' result = BicMixR(data$y,nf=100,out_dir="results",tol=1e-10,x_method="dense",rsd=123)
+#' cal_score_sparse(result$lam[,result$z>0.9],data$lams)
 
 #' @references \url{http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004791}
 
 
-BicMixR <- function(y=NULL,nf=100,a=0.5,b=0.5,c=0.5,d=0.5, e=0.5,f=0.5, itr=5001,rsd=NULL,out_itr=200,out_dir=NULL, lam_method=NULL, x_method=NULL, tol=NULL, qnorm = TRUE){
+BicMixR <- function(y=NULL,nf=100,a=0.5,b=0.5,c=0.5,d=0.5, e=0.5,f=0.5, itr=5001,rsd=NULL,out_itr=200,out_dir=NULL, lam_method="matrix", x_method="dense", tol=1e-10, qnorm = TRUE){
     
 	#if(! "preprocessCore" %in% rownames(installed.packages())){
 	#	source("https://bioconductor.org/biocLite.R")
@@ -122,35 +123,22 @@ BicMixR <- function(y=NULL,nf=100,a=0.5,b=0.5,c=0.5,d=0.5, e=0.5,f=0.5, itr=5001
     
     if(is.null(rsd)){
         rsd = sample(1:1000000,1)
-        cat ("You didn't specify a random seed, one is randomly generated.\n")
-    }
-    
-    #set.seed(rsd)
-    
-    if(is.null(x_method)){
-        x_method = "dense"
+        warning("You didn't specify a random seed, one is randomly generated.\n")
     }
     
     if(x_method != "sparse" && x_method != "dense"){
-        cat("x_method can only be sparse or dense\n")
+        warning("x_method can only be sparse or dense\n")
         stop()
     }
 
-    if(is.null(lam_method)){
-        lam_method = "matrix"
-    }
-    
     if(lam_method != "matrix" && lam_method != "element"){
         ##cat("lam_method can only be matrix or element\n")
         stop("lam_method can only be matrix or element\n")
     }
 
     if(lam_method == "element" && x_method == "sparse"){
-        cat("lam_method can't be element when x_method is sparse\n")
+        warning("lam_method can't be element when x_method is sparse\n")
         stop()
-    }
-    if(is.null(tol)){
-        tol = 1e-5
     }
 
     out_dir2 = out_dir
@@ -180,128 +168,176 @@ BicMixR <- function(y=NULL,nf=100,a=0.5,b=0.5,c=0.5,d=0.5, e=0.5,f=0.5, itr=5001
     return(result)
 }
 
-#' Simulate matrix with dimension of 1000 x 200. Number of loadings and factors is set to 30, where 20 loadings and 20 factors are sparse. The sparse loadings and factors cotain mostly zeros, and random blocks of nonzero values generated from N(0,std). The dense loadings and factors are also generated from N(0,std). The error matrix is generated from N(0,1).
-
-#' @param std standard deviation for the normal distribution of the non-zero entries of the sparse components
-
-#' @return a list containing the following
-#' @return lams: the sparse loadings
-#' @return lamd: the dense loadings
-#' @return lam: the loading matrix combining both the sparse and dense loading
-
-#' @return exs: the sparse factors matrix
-#' @return exd: the dense factors matrix
-#' @return ex: the factors matrix combining both the sparse and dense factors
-#' @return y: the y matrix calculated as y = lam * ex + err
+gen_sparse_matrix <- function(std=2, rsd = 123, nf = 10, ng = 500){
+  set.seed(rsd)
  
-gen_BicMix_data <- function(std=2){
-    nf.s <- 10
-    nf.d <- 5
-
-    ng <- 1000
-    ns <- 200
-
-    nf <- nf.s+nf.d
-
-    lams <- matrix(0,nrow=ng,ncol=nf.s)
-    lamd <- matrix(rnorm(ng*nf.d,0,std),nrow=ng,ncol=nf.d)
-
-    #block <- ng/nf.s
-    block <- 50
-    for(i in 1:nf.s){
-        #ne <- sample(20:40,1)
-	start <- sample(1:(ng-50),1)
-        lams[start + sample(1:block,block,replace=T),i] = rnorm(block,0,std)
-    }
-    
-
-    lam <- as.matrix(cbind(lams,lamd))
-
-    lam <- lam[,sample(1:nf,nf,replace=F)]
-    
-    
-    exs <- matrix(0,ncol=ns,nrow=nf.s)
-    exd <- matrix(rnorm(ns*nf.d,0,std),nrow=nf.d,ncol=ns)
-    #block <- ns/nf.s
-	block = 30
-    for(i in 1:nf.s){
-        #ne <- sample(20:30,1)
-	start <- sample(1:(ns-30),1)
-        exs[i,start + sample(1:block,block,replace=T)] = rnorm(block,0,std)
-    }
-    
-    ex <- as.matrix(rbind(exs,exd))
-    ex <- ex[sample(1:nf,nf,replace=F),]
-    
-    err <- matrix(rnorm(ng*ns),nrow=ng,ncol=ns)
-
-    y <- lam %*% ex + err
-    
-    return(list(y=y,lams=lams,lamd=lamd,lam=lam,exs=exs,exd=exd,ex=ex))
+  lam <- matrix(0,nrow=ng,ncol=nf)
+  
+  ########## simulate lam
+  for(i in 1:nf){
+    block <- sample(min(20,ng/2):min(50,ng),1)
+    start <- sample(1:(ng-block),1)
+    lam[start + 1:block,i] = rnorm(block,0,std)
+  }
+  lam
 }
 
+gen_dense_matrix <- function(std=2, rsd = 123, nf = 5, ng = 500){
+  set.seed(rsd)
+  lam <- matrix(0,nrow=ng,ncol=nf)
+  lam <- matrix(rnorm(ng*nf,0,std),nrow=ng,ncol=nf)
+}
 
-#' Simulate matrix with dimension of 1000 x 200. Number of loadings and factors is set to 30, where 20 loadings and 20 factors are sparse. The sparse loadings and factors cotain mostly zeros, and random blocks of nonzero values generated from N(0,std). The dense loadings and factors are also generated from N(0,std). The error matrix is generated from N(0,1).
+#' Simulate a matrix y = lam * ex + err
 
-#' @param std standard deviation for the normal distribution of the non-zero entries of the sparse components
+#' @param std standard deviation for the normal distribution of the non-zero entries of the sparse loading
+#' @param rsd random seed
+#' @param std.err standard deviation of the error term
+#' @param nf total number of the loadings
+#' @param nfs number of the sparse loadings
+#' @param ng number of genes
+#' @param ns number of samples
+#' @param type.loading type of loading matrix wanted, "mixture" for a matrix mixed with sparse and dense components, "sparse" for a matrix with only sparse components
+#' @param type.factor type of factor matrix wanted, "mixture" for a matrix mixed with sparse and dense components, "dense" for a matrix with only dense components
 
 #' @return a list containing the following
 #' @return lams: the sparse loadings
 #' @return lamd: the dense loadings
 #' @return lam: the loading matrix combining both the sparse and dense loading
 
-#' @return exs: the sparse factors matrix
-#' @return exd: the dense factors matrix
 #' @return ex: the factors matrix combining both the sparse and dense factors
+#' @return err: matrix of the error term
 #' @return y: the y matrix calculated as y = lam * ex + err
 #' @export
 
-
-gen_SFA_data <- function(std=2, rsd = 123, std.err=1, n.effects = 15, nfs = 10, ng = 1000, ns=200, dense=T){
+gen_BicMix_data <- function(std=2, rsd = NULL, std.err=1, nf = 15, nfs = 10, ng = 500, ns=300, type.loading="mixture",type.factor="dense"){
+  
   set.seed(rsd)
   
-  nf <- n.effects
-  nfd <- nf - nfs
+  lam <- NA
+  lams <- NA
+  lamd <- NA
   
-  lam <- c()
-  lams <- c()
-  lamd <- c()
+  ex <- NA
   
-  lams <- matrix(0,nrow=ng,ncol=nfs)
-  
-  ########## simulate lam
-  for(i in 1:nfs){
-    block <- sample(20:60,1)
-    start <- sample(1:(ng-block),1)
-    lams[start + sample(1:block,block,replace=T),i] = rnorm(block,0,std)
+  if(is.null(rsd)){
+    rsd = sample(1:1000000,1)
+    warning("You didn't specify a random seed, one is randomly generated.\n")
   }
   
-  if(dense){
-    lamd <- matrix(rnorm(ng*nfd,0,std),nrow=ng,ncol=nfd)
-    lam <- cbind(lams,lamd)
-    #lam <- lam[,sample(1:nf,nf,replace=F)]
-  }else{
-    lam <- lams
-    #lam <- lam[,sample(1:nfs,nfs,replace=F)]
-  }
+  if(type.loading == "sparse"){
+    lam <- gen_sparse_matrix(std=std, rsd = rsd, nf = nf, ng = ng)
+  }else if(type.loading=="mixture"){
+    lams <- gen_sparse_matrix(std=std, rsd = rsd, nf = nfs, ng = ng)
+    lamd <- gen_dense_matrix(std=std, rsd = rsd, nf = nf - nfs, ng = ng)
+    lam <- cbind(lamd,lams)
+  }else{stop("type.loading can only be sparse, or mixture")}
   
-  ############### simulate ex
-  if(!dense){
-    nf <- nfs
-  }
-  
-  ex <- matrix(rnorm(ns*nf,0,std),nrow=nf,ncol=ns)
-  
+  if(type.factor == "mixture"){
+    xs <- gen_sparse_matrix(std=std, rsd = rsd, nf = nfs, ng = ns)
+    xd <- gen_dense_matrix(std=std, rsd = rsd, nf = nf - nfs, ng = ns)
+    ex <- rbind(t(xs),t(xd))
+    ex <- ex[sample(1:nrow(ex),nrow(ex),replace=F),]
+  }else if(type.factor == "dense"){
+    ex <- t(gen_dense_matrix(std=std, rsd = rsd, nf = nf, ng = ns))
+  }else{stop("type.factor can only be dense, or mixture")}
   ###################### simulate error
   err <- matrix(rnorm(ng*ns,0,std.err),nrow=ng,ncol=ns)
   
-  y <- lam %*% ex + err
+  y <- as.matrix(lam) %*% as.matrix(ex) + err
   
-  if(dense){
-    return(list(y=y,lams=lams,lamd=lamd,lam=lam,ex=ex, err=err))
-  }else{
-    return(list(y=y,lams=lams,lam=lam,ex=ex, err=err))
-  }
+  return(list(y=y,lams=lams,lamd=lamd,lam=lam,ex=ex, err=err))
 }
 
 
+#' calculate the similarity score of two sparse matrices, explained in the SFAmix paper
+
+#' @param m1 sparse matrix 1
+#' @param m2 sparse matrix 2
+#' @param precis when TRUE, only use the most correlated components in the two matrices to calculate the score, this is to account for the scenario where the two matrices have different dimensions, but all components in the smaller matrix have high correlation with a subset of big matrix
+#' @return a similarity score
+#' @export
+cal_score_sparse <- function(m1, m2, precis = FALSE){
+  
+  sigma <- abs(cor(m1,m2))
+  nr <- nrow(sigma)
+  nc <- ncol(sigma)
+  
+  r1 <- apply(sigma,1,function(x){
+    xm <- max(x)
+    x <- x[x!=max(x)]
+    return(xm - mean(x[x>=mean(x)]))
+  })
+  r1 <- as.numeric(r1)
+  
+  r2 <- 0
+  if(nrow(sigma) > 1){
+    r2 <- apply(sigma,2,function(x){
+      xm <- max(x)
+      x <- x[x!=max(x)]
+      return(xm - mean(x[x>=mean(x)]))  
+    })
+  }
+  r2 <- as.numeric(r2)
+  
+  nf <- min(nc,nr)
+  o1 <- order(r1,decreasing=T)    
+  o2 <- order(r2,decreasing=T)
+  
+  r <- (mean(r1)+mean(r2))/2
+  if(precis){
+    r <- (mean(r1[o1[1:nf]]) + mean(r2[o2[1:nf]]))/2
+  }
+  return(r)
+}
+#' calculate the similarity score of two dense matrices, explained in the SFAmix paper
+
+#' @param m1 dense matrix 1
+#' @param m2 dense matrix 2
+#' @param precis when TRUE, only use the most correlated components in the two matrices to calculate the score, this is to account for the scenario where the two matrices have different dimensions, but all components in the smaller matrix have high correlation with a subset of big matrix 
+#' @return a similarity score
+#' @export
+cal_score_dense <- function(m1,m2,precis=FALSE){
+  
+  m1 <- apply(m1,2,function(x){scale(x)})
+  m2 <- apply(m2,2,function(x){scale(x)})
+  
+  if(precis){
+    cr <- cor(m1,m2)
+    cr <- abs(cr)
+    nr <- nrow(cr)
+    nc <- ncol(cr)
+    nf <- min(nr,nc)
+    maxr <- apply(cr,1,max)
+    maxc <- apply(cr,2,max)
+    o.r <- order(maxr,decreasing=T)
+    o.c <- order(maxc,decreasing=T)
+    if(nr > nc){
+      m1 <- m1[,o.r[1:nc]]
+    }else{
+      m2 <- m2[,o.c[1:nr]]
+    }
+  }
+  sigma <- m1 %*% t(m1) - m2 %*% t(m2)
+  r <- sum(diag(sigma * sigma))/nrow(sigma)/nrow(sigma)
+  return(r)
+}
+
+
+
+# 
+# data <- gen_SFA_data(type.loading="mixture",type.factor="dense")
+# apply(data$lam,2, function(x){return(sum(x!=0))})
+# apply(data$ex,1, function(x){return(sum(x!=0))})
+# 
+# data <- gen_SFA_data(type.loading="sparse",type.factor="dense")
+# apply(data$lam,2, function(x){return(sum(x!=0))})
+# apply(data$ex,1, function(x){return(sum(x!=0))})
+# 
+# data <- gen_SFA_data(type.loading="sparse",type.factor="mixture")
+# apply(data$lam,2, function(x){return(sum(x!=0))})
+# apply(data$ex,1, function(x){return(sum(x!=0))})
+# 
+# data <- gen_SFA_data(type.loading="mixture",type.factor="mixture")
+# apply(data$lam,2, function(x){return(sum(x!=0))})
+# apply(data$ex,1, function(x){return(sum(x!=0))})
