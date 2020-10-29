@@ -1,2 +1,0 @@
-for this purpose, I used mine_sim.m to do everything, where all simulations were run using for loops in matlab, batch_KSVD.pl does not work in here.
-

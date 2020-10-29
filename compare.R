@@ -3,14 +3,7 @@ rm(list=ls())
 
 options(scipen=10)
 
-setwd("/Users/cg253/BicMix")
-
-#source("./TPBayes/fastBVSR-2019v1/R-mac/bvsr.R")
-source("./util.R")
-
-set.seed(123)
 library(ggplot2)
-#library(TPBayes)
 library(parallel)
 library(glmnet)
 library(gridExtra)
@@ -20,69 +13,16 @@ library(ggpubr)
 library(reshape2)
 library("ggsci")
 library(BicMix)
-
-#library(BicMix)
-#library(BicMix2)
 library(PMA)
-numCores <- 10
-
-#library(knitr)
-#require(markdown)
-
-#setwd("./code/R")
-
-## file directories
-results.path <- "./AOAS"
-
-## testing directory creations
-table.path <- file.path(results.path, "table")
-#stashDirCreate(table.path, otherrx=FALSE, grouprx=TRUE)
-plot.path <- file.path(results.path, "plot")
-#stashDirCreate(plot.path, otherrx=FALSE, grouprx=TRUE)
-data.path <- file.path(results.path, "data")
-
-dir.create(table.path)
-dir.create(plot.path)
-dir.create(data.path)
-
-#stashDirCreate(results.path, otherrx=FALSE, grouprx=TRUE)
-
-n.effects.list <- c(15)
-#std.err.list <- c(1, 2, 3, 4, 5)
-std.err.list <- c(1,3,5)
-
-dense.list <- c("TRUE","FALSE")
-
-method.list <- c("SFAmix","IFA","BFRM","SPCA","KSVD")
-
-seed.list <- 1:10
-std.effect.list <- 2
-#b.list <- c(10) * 100000
-b.list <- 0.5
-#b.list <- c(500000)
-sn <- 500
-dy <- 200
-
-ng=sn
-ns=dy
-
-nfs = 10
-nf = 15
-
-a=0.5
-#b=1000000
-#c=0.1; d=1000; g=0.1; h=100000
 
 
-param.config <- expand.grid(n.effects.list, std.err.list, method.list, seed.list, std.effect.list, b.list,dense.list)
-names(param.config) <- c("n.effects", "std.err", "method", "seed", "std.effect","b","dense")
+setwd("/Users/cg253/BicMix")
 
+source("./util.R")
 source("./KSVD/ksvd.r")
 source("./IFA/ifa.r")
 source("./BFRM/bfrm.r")
 source("./util.R")
-
-#method <- "BicMix2"
 
 script.path = "/Users/cg253/BicMix/"
 matlab.path = "/Applications/Matlab_R2019b.app/bin/matlab"
@@ -91,29 +31,52 @@ outputDir = '/Users/cg253//BicMix/AOAS/table'
 inputDir= '/Users/cg253/BicMix/AOAS/data'
 dir.create(inputDir)
 
+################################################################### file directories
+results.path <- "./AOAS"
+
+table.path <- file.path(results.path, "table")
+plot.path <- file.path(results.path, "plot")
+data.path <- file.path(results.path, "data")
+
+dir.create(results.path)
+dir.create(table.path)
+dir.create(plot.path)
+dir.create(data.path)
+
+##########################################################################
+std.err.list <- c(1,3,5)
+dense.list <- c("TRUE","FALSE") ## whether loading has dense components
+method.list <- c("SBIF","BFRM","SPCA","KSVD")
+seed.list <- 1:10
+std.effect.list <- 2
+
+ab.config <- c("Horseshoe","Strawderman","Uniform")
+
+data.config <- expand.grid(std.err.list, seed.list, std.effect.list, dense.list)
+names(data.config) <- c("std.err", "seed", "std.effect","dense")
+
+sfa.config <- cbind("SFAmix",expand.grid(ab.config, ab.config, ab.config))
+names(sfa.config) <- c("method","local","component","global")
+
+method.config <- rbind(sfa.config,
+                       cbind(method=method.list,local="NA",component="NA",global="NA"))
+
+ng <- 500
+ns <- 200
+
+nfs = 10
+nf = 15
 
 itr <- 2001
-#res <- run_sim(param.config[param.config$method == method & param.config$dense == TRUE,][1,], nfs=nfs, nf=nf, ng= ng, ns=ns, itr = itr)
-itr = itr
-inputDir=inputDir
-outputDir
-script.path = script.path
-bfrm.path=bfrm.path
-matlab.path = matlab.path
-nfs=nfs
-ng=sn
-ns=dy
-mc.cores = 10
 
-i=13
+i=1
+j=1
 
-res <- run_sim(param.config[i,], itr = itr, inputDir=inputDir, outputDir = outputDir, script.path = script.path, bfrm.path=bfrm.path, matlab.path = matlab.path, nfs=nfs, nf=nf, ng=sn, ns=dy, mc.cores = 10)
+res <- run_sim(data.config[i,],method.config[j,], itr = itr, inputDir=inputDir, outputDir = outputDir, script.path = script.path, bfrm.path=bfrm.path, matlab.path = matlab.path, nfs=nfs, nf=nf, ng=ng, ns=ns, mc.cores = 10)
 #results <- res[[1]]
 #count.prob <- apply(results$z,2,function(x){return(sum(x > 0.5)/sn)})
 
 res2 <- extract_res(res)
-#res2.bak <- res2
-library("ggsci")
 
 score.sparse.all <- res2$score.sparse
 score.dense.all <- res2$score.dense
