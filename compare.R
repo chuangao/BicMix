@@ -16,32 +16,27 @@ library(BicMix)
 library(PMA)
 
 
-setwd("/Users/cg253/BicMix")
+setwd("~/BicMix")
 
 source("./util.R")
 source("./KSVD/ksvd.r")
-source("./IFA/ifa.r")
+source("./SBIF/sbif.r")
 source("./BFRM/bfrm.r")
 source("./util.R")
 
-script.path = "/Users/cg253/BicMix/"
+script.path = "~/BicMix/"
 matlab.path = "/Applications/Matlab_R2019b.app/bin/matlab"
-bfrm.path="/Users/cg253/BicMix/BFRM/bfrm"
-outputDir = '/Users/cg253//BicMix/AOAS/table'
-inputDir= '/Users/cg253/BicMix/AOAS/data'
-dir.create(inputDir)
+bfrm.path="~/BicMix/BFRM/bfrm"
 
 ################################################################### file directories
-results.path <- "./AOAS"
+results.path <- "./AOAS"; dir.create(results.path)
 
-table.path <- file.path(results.path, "table")
-plot.path <- file.path(results.path, "plot")
-data.path <- file.path(results.path, "data")
+table.path <- file.path(results.path, "table"); dir.create(table.path)
+plot.path <- file.path(results.path, "plot"); dir.create(plot.path)
+data.path <- file.path(results.path, "data"); dir.create(data.path)
 
-dir.create(results.path)
-dir.create(table.path)
-dir.create(plot.path)
-dir.create(data.path)
+outputDir = table.path
+inputDir= data.path
 
 ##########################################################################
 std.err.list <- c(1,3,5)
@@ -70,9 +65,8 @@ nf = 15
 itr <- 2001
 
 i=1
-j=1
 
-res <- run_sim(data.config[i,],method.config[j,], itr = itr, inputDir=inputDir, outputDir = outputDir, script.path = script.path, bfrm.path=bfrm.path, matlab.path = matlab.path, nfs=nfs, nf=nf, ng=ng, ns=ns, mc.cores = 10)
+res <- run_sim(data.config[i,],method.config[c(1, 28:31),], itr = itr, inputDir=inputDir, outputDir = outputDir, script.path = script.path, bfrm.path=bfrm.path, matlab.path = matlab.path, nfs=nfs, nf=nf, ng=ng, ns=ns, mc.cores = 10)
 #results <- res[[1]]
 #count.prob <- apply(results$z,2,function(x){return(sum(x > 0.5)/sn)})
 

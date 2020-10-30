@@ -10,10 +10,10 @@ run_sim <- function(data.config, method.config, itr=2001, inputDir=NULL, outputD
             std.effect <- data.config[i,"std.effect"]
             dense <- as.logical(as.character(data.config[i,"dense"]))
             
-            method <- as.character(method.config[i,"method"])
-            local <- as.character(method.config[i,"local"])
-            component <- as.character(method.config[i,"component"])
-            global <- as.character(method.config[i,"global"])
+            method <- as.character(method.config[j,"method"])
+            local <- as.character(method.config[j,"local"])
+            component <- as.character(method.config[j,"component"])
+            global <- as.character(method.config[j,"global"])
             
             param <- data.frame(nf=nf, std.err=std.err,seed=i.seed, method = method, std.effect = std.effect, 
                                 local=local,component=component,global=global, dense=dense,stringsAsFactors =F)
@@ -66,11 +66,12 @@ run_sim <- function(data.config, method.config, itr=2001, inputDir=NULL, outputD
                 lams <- lam[,1:min(ncol(lam),nfs),drop=F]
                 
                 if(dense){  
-                    lamd <- ifelse(ncol(lam) > nfs, lam[,(nfs+1):ncol(lam),drop=FALSE],NULL)
+                    if(ncol(lam) > nfs){lamd <- lam[,(nfs+1):ncol(lam),drop=FALSE]}else{lamd <- NA}
                 }
             }else{
                 if(method == "SPCA"){
                     lam <- SPC(t(data$y),sumabsv=4,K=nf,niter=100)
+                    lam <- lam$v
                 }else if(method == "KSVD"){
                     outputDir.ksvd=file.path(outputDir,"KSVD")
                     dir.create(outputDir.ksvd)
