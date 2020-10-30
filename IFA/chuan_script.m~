@@ -1,5 +1,0 @@
-[LAM,EX]=IFA_chuan(file,kinit);
-
-
-dlmwrite(strcat(dir,'Lambda.txt'), LAM, 'delimiter', '\t','precision', 6);
-dlmwrite(strcat(dir,'EX.txt'), EX, 'delimiter', '\t','precision', 6);
