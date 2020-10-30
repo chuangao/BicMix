@@ -19,7 +19,7 @@ BicMixR(
   out_dir = NULL,
   lam_method = "matrix",
   x_method = "dense",
-  tol = 0.0000000001,
+  tol = 1e-10,
   qnorm = TRUE
 )
 }
@@ -86,7 +86,6 @@ image(t(data$ex),x=1:ncol(data$ex),y=1:nrow(data$ex),xlab="Samples",ylab="Factor
 ## run algorithm on the simulated data
 system("mkdir results")
 result = BicMixR(data$y,nf=100,out_dir="results",tol=1e-10,x_method="sparse",rsd=123)
-cal_score_sparse(result$lam[,result$z>0.9],data$lams)
 ## calculate a correlation matrix of the estimated loading matrix 
 ## and the true loading matrix. Ideally, there should be one and 
 ## only one big correlation value for a given row and column of the 
@@ -95,9 +94,15 @@ cor.est.real = cor(result$lam[,result$z==1],data$lams)
 ## visualize the correlation matrix
 image(cor.est.real,x=1:nrow(cor.est.real),y=1:ncol(cor.est.real),
 xlab="Recovered loadings",ylab="True loadings")
+
+## calculate similarity score of the recovered loading matrix and the true loading matrix
+cal_score_sparse(result$lam[,result$z>0.9],data$lams)
 ## Following is an example on how to use BicMix to generate one way clusters (sparsity is induced on the loading matrix, not on the factor matrix)
+## simulate data
 data = gen_BicMix_data(std=2, type.factor="dense", rsd = 123)
+## perform analysis
 result = BicMixR(data$y,nf=100,out_dir="results",tol=1e-10,x_method="dense",rsd=123)
+## calculate similarity score of the recovered loading matrix and the true loading matrix
 cal_score_sparse(result$lam[,result$z>0.9],data$lams)
 }
 \references{

@@ -1,4 +1,3 @@
-
 BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, c_param, d_param, e_param, f_param, nf_param, itr_param, LAM_out, EX_out, Z_out, O_out, EXX_out, PSI_out, nf_out, out_itr, out_dir,rsd, lam_method, x_method, tol){
 
     Y_TMP_param <- as.numeric(as.character(Y_TMP_param))   
@@ -85,7 +84,6 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, c_param,
 #' ## run algorithm on the simulated data
 #' system("mkdir results")
 #' result = BicMixR(data$y,nf=100,out_dir="results",tol=1e-10,x_method="sparse",rsd=123)
-#' cal_score_sparse(result$lam[,result$z>0.9],data$lams)
 
 #' ## calculate a correlation matrix of the estimated loading matrix 
 #' ## and the true loading matrix. Ideally, there should be one and 
@@ -95,15 +93,21 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, c_param,
 #' ## visualize the correlation matrix
 #' image(cor.est.real,x=1:nrow(cor.est.real),y=1:ncol(cor.est.real),
 #' xlab="Recovered loadings",ylab="True loadings")
+#' 
+#' ## calculate similarity score of the recovered loading matrix and the true loading matrix
+#' cal_score_sparse(result$lam[,result$z>0.9],data$lams)
 
 #' ## Following is an example on how to use BicMix to generate one way clusters (sparsity is induced on the loading matrix, not on the factor matrix)
+#' ## simulate data
 #' data = gen_BicMix_data(std=2, type.factor="dense", rsd = 123)
+#' ## perform analysis
 #' result = BicMixR(data$y,nf=100,out_dir="results",tol=1e-10,x_method="dense",rsd=123)
+#' ## calculate similarity score of the recovered loading matrix and the true loading matrix
 #' cal_score_sparse(result$lam[,result$z>0.9],data$lams)
 
 #' @references \url{http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004791}
 
-
+#' @export BicMixR
 BicMixR <- function(y=NULL,nf=100,a=0.5,b=0.5,c=0.5,d=0.5, e=0.5,f=0.5, itr=5001,rsd=NULL,out_itr=200,out_dir=NULL, lam_method="matrix", x_method="dense", tol=1e-10, qnorm = TRUE){
     
 	#if(! "preprocessCore" %in% rownames(installed.packages())){
@@ -254,9 +258,12 @@ gen_BicMix_data <- function(std=2, rsd = NULL, std.err=1, nf = 15, nfs = 10, ng 
 
 #' @param m1 sparse matrix 1
 #' @param m2 sparse matrix 2
-#' @param precis when TRUE, only use the most correlated components in the two matrices to calculate the score, this is to account for the scenario where the two matrices have different dimensions, but all components in the smaller matrix have high correlation with a subset of big matrix
+#' @param precis when TRUE, only use the most correlated components in the two
+#' matrices to calculate the score, this is to account for the scenario where
+#' the two matrices have different dimensions, but all components in the
+#' smaller matrix have high correlation with a subset of big matrix
 #' @return a similarity score
-#' @export
+#' @export cal_score_sparse
 cal_score_sparse <- function(m1, m2, precis = FALSE){
   
   sigma <- abs(cor(m1,m2))
@@ -290,13 +297,16 @@ cal_score_sparse <- function(m1, m2, precis = FALSE){
   }
   return(r)
 }
-#' calculate the similarity score of two dense matrices, explained in the SFAmix paper
 
+#' calculate the similarity score of two dense matrices, explained in the SFAmix paper
 #' @param m1 dense matrix 1
 #' @param m2 dense matrix 2
-#' @param precis when TRUE, only use the most correlated components in the two matrices to calculate the score, this is to account for the scenario where the two matrices have different dimensions, but all components in the smaller matrix have high correlation with a subset of big matrix 
+#' @param precis when TRUE, only use the most correlated components in the two
+#' matrices to calculate the score, this is to account for the scenario where
+#' the two matrices have different dimensions, but all components in the
+#' smaller matrix have high correlation with a subset of big matrix
 #' @return a similarity score
-#' @export
+#' @export cal_score_dense
 cal_score_dense <- function(m1,m2,precis=FALSE){
   
   m1 <- apply(m1,2,function(x){scale(x)})
@@ -322,22 +332,3 @@ cal_score_dense <- function(m1,m2,precis=FALSE){
   r <- sum(diag(sigma * sigma))/nrow(sigma)/nrow(sigma)
   return(r)
 }
-
-
-
-# 
-# data <- gen_SFA_data(type.loading="mixture",type.factor="dense")
-# apply(data$lam,2, function(x){return(sum(x!=0))})
-# apply(data$ex,1, function(x){return(sum(x!=0))})
-# 
-# data <- gen_SFA_data(type.loading="sparse",type.factor="dense")
-# apply(data$lam,2, function(x){return(sum(x!=0))})
-# apply(data$ex,1, function(x){return(sum(x!=0))})
-# 
-# data <- gen_SFA_data(type.loading="sparse",type.factor="mixture")
-# apply(data$lam,2, function(x){return(sum(x!=0))})
-# apply(data$ex,1, function(x){return(sum(x!=0))})
-# 
-# data <- gen_SFA_data(type.loading="mixture",type.factor="mixture")
-# apply(data$lam,2, function(x){return(sum(x!=0))})
-# apply(data$ex,1, function(x){return(sum(x!=0))})

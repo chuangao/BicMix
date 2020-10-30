@@ -11,7 +11,10 @@ cal_score_sparse(m1, m2, precis = FALSE)
 
 \item{m2}{sparse matrix 2}
 
-\item{precis}{when TRUE, only use the most correlated components in the two matrices to calculate the score, this is to account for the scenario where the two matrices have different dimensions, but all components in the smaller matrix have high correlation with a subset of big matrix}
+\item{precis}{when TRUE, only use the most correlated components in the two
+matrices to calculate the score, this is to account for the scenario where
+the two matrices have different dimensions, but all components in the
+smaller matrix have high correlation with a subset of big matrix}
 }
 \value{
 a similarity score
