@@ -76,15 +76,6 @@ extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, do
     
     string lam_method_in = *lam_method;
     string x_method_in = *x_method;
-
-    //cout << "a " << a << endl;
-    
-    
-    //cout << "nf " <<  nf << endl;
-    //cout << "s_n " << s_n << endl;
-    //cout << "a " << a << endl;
-    //cout << "a " << a << endl;
-    
     
     MatrixXd Y=MatrixXd::Constant(s_n,d_y,0);
     
@@ -140,8 +131,6 @@ extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, do
     
     init_lam(LAM, s_n, nf, seed);
     
-    //VectorXd lam_count_v = VectorXd::Constant(n_itr,0);
-    
     //declare and initialize parameters related to X
     double XI=1,VARSIG=1,OMEGA=1;
     
@@ -161,17 +150,11 @@ extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, do
     MatrixXd LOGVO = MatrixXd::Constant(nmix,1,log(zi));
     
     MatrixXd LPL = MatrixXd::Constant(nf,nf,0);
-    //MatrixXd vLXL = MatrixXd::Constant(s_n,s_n,0);
-    //MatrixXd partR = MatrixXd::Constant(nf,d_y,0);
-    //MatrixXd partL = MatrixXd::Constant(s_n,nf,0);
-    
+   
     // fill in the EX matrix
     init_ex(EX, d_y, nf, seed);
     
     EXX=EX*EX.transpose();
-    
-    //VectorXd x_count_v = VectorXd::Constant(n_itr,0);
-    //MatrixXd LAM_T=LAM.transpose();
     
     LPL.setZero();
     for(int i=0;i<s_n;i++){
@@ -191,16 +174,8 @@ extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, do
         
         cal_z(logZ, LOGV, LAM,  THETA,  DELTA, PHI,  Z, nf, s_n, a, b, alpha, beta,true);
         
-        //if(x_method.compare("bicmix") == 0){
-        //cout << "You passed bicmix" << endl;
         cal_ex_all( LAM,  Y, EX, PSI_INV, EXX, O, LPL, SIGMA, LAMX,  s_n,  d_y,  nf,
                    a,  b,  c,  d,  g,  h,  VARSIG,  OMEGA,  XI,  KAPPA,  RHO,  logO,  LOGVO,  alpha,  beta, x_method_in);
-        //}
-        //if(method.compare("sfamix") == 0){
-        //cal_ex_simple(EX, EXX, LAM, PSI_INV, Y, s_n, nf, d_y);
-        //}
-        
-        
         
         // count the number of non-zero values in each row of the x matrix
         int count_nonzero = 0;
@@ -210,13 +185,9 @@ extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, do
         if(count_nonzero != nf){
             nf=count_nonzero;
             nt=nf;
-            //red_dim(EX, EXX, LAM, THETA, DELTA, PHI, TAU, Z, logZ, count_lam, index, KAPPA, LAMX,
-            //        RHO, SIGMA, count_x, O, logO, LPL, partR, partL, nf, nt, s_n, d_y, nmix, zi);
+          
             red_dim(EX, EXX, LAM, THETA, DELTA, PHI, TAU, Z, logZ, count_lam, index, KAPPA, LAMX,
                     RHO, SIGMA, count_x, O, logO, LPL, nf, nt, s_n, d_y, nmix, zi,true);
-            //red_dim(EX_merge, EXX_merge, LAM_merge, THETA_merge, DELTA_merge, PHI_merge, TAU_merge, Z_merge, logZ_merge, count_lam, index, KAPPA_merge, LAMX_merge,
-            //       RHO_merge, SIGMA_merge, count_x, O_merge, logO_merge, LPL_merge, nfcov, nt, s_n, d_y, nmix, zi,false);
-            
         }
         
         MatrixXd LX=LAM*EX;
@@ -256,11 +227,11 @@ extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, do
             sin = out_dir + "/PSI_" + std::to_string(itr);
             write_file <VectorXd> (PSI,sin);
 
-		if(x_method_in.compare("sparse") == 0){
-			sin = out_dir + "/O_" + std::to_string(itr);
-            		write_file <MatrixXd> (O,sin);
+		    if(x_method_in.compare("sparse") == 0){
+			    sin = out_dir + "/O_" + std::to_string(itr);
+            	write_file <MatrixXd> (O,sin);
             
-		}
+		    }
         }
         if(itr>10){
             if(abs(det_psi(itr) - det_psi(itr-1)) < tol_in){
@@ -286,22 +257,15 @@ extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, do
                 sin = out_dir + "/PSI";
                 write_file <VectorXd> (PSI,sin);
 
-		if(x_method_in.compare("sparse") == 0){
-			sin = out_dir + "/O";
-            		write_file <MatrixXd> (O,sin);
+		        if(x_method_in.compare("sparse") == 0){
+			        sin = out_dir + "/O";
+            	    write_file <MatrixXd> (O,sin);
             
-		}
-                
+		        }
                 break;
             }
         }
-        
-        
     }
-    
-    
     convert_results(LAM,EX,EXX,Z,O,PSI,nf,LAM_out,EX_out,EXX_out, Z_out,O_out,PSI_out, nf_out,s_n,d_y);
-    
-    
 }
 

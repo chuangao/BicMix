@@ -19,7 +19,7 @@ BicMixR(
   out_dir = NULL,
   lam_method = "matrix",
   x_method = "dense",
-  tol = 1e-10,
+  tol = 0.0000000001,
   qnorm = TRUE
 )
 }
