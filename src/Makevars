@@ -8,7 +8,7 @@
 ## R package don't allow overide flags, so set it to different names.
 ## same goes with what's in the Makefile.
 
-PKG_CC = clang++
+PKG_CC = g++
 
 PKG_CFLAGS=-I${CURDIR}/ -I${CURDIR}/include/ -I${CURDIR}/include/R/
 PKG_CPPFLAGS=-I${CURDIR}/ -I${CURDIR}/include/ -I${CURDIR}/include/R/
