@@ -41,7 +41,7 @@ Chuan Gao C++
 
 
 
-extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, double *a_param, double *b_param, double *c_param, double *d_param, double *e_param, double *f_param, int *nf_param, int *itr_param, double *LAM_out, double *EX_out, double *Z_out, double *O_out,double *EXX_out, double *PSI_out, int *nf_out, int *out_itr, char **output_dir,int *rsd, char **lam_method, char **x_method, double *tol){
+extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, double *a_param, double *b_param, double *c_param, double *d_param, double *e_param, double *f_param, int *nf_param, int *itr_param, double *LAM_out, double *EX_out, double *Z_out, double *O_out,double *EXX_out, double *PSI_out, int *nf_out, int *out_itr, char **output_dir,int *rsd, char **lam_method, char **x_method, double *tol, int *nf_min){
     
     //unsigned int n_threads = std::thread::hardware_concurrency();
     
@@ -67,6 +67,8 @@ extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, do
     double tol_in = *tol;
 
     double alpha=1,beta=1;
+
+    int nf_min_in = *nf_min;
         
     
     string out_dir = *output_dir;
@@ -167,8 +169,24 @@ extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, do
     
     //string lam_method_in = lam_method;
     
+       int nf_bak = nf;
+        MatrixXd LAM_bak=LAM;
+        MatrixXd EX_bak=EX;
+        MatrixXd EXX_bak=EXX;
+        MatrixXd Z_bak=Z;
+        MatrixXd O_bak=O;
+        VectorXd PSI_bak=PSI;
+
     for(int itr=0;itr<=n_itr;itr++){
-        
+
+        nf_bak = nf;
+        LAM_bak=LAM;
+        EX_bak=EX;
+        EXX_bak=EXX;
+        Z_bak=Z;
+        O_bak=O;
+        PSI_bak=PSI;
+
         cal_lam_all(LAM, Y,EX,PSI_INV,EXX,Z,LPL,THETA,PHI, s_n, d_y, nf,
                     a, b, c, d, g, h, GAMMA, ETA, nu, TAU, DELTA, alpha, beta, lam_method_in);
         
@@ -234,7 +252,7 @@ extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, do
 		    }
         }
         if(itr>10){
-            if(abs(det_psi(itr) - det_psi(itr-1)) < tol_in){
+            if(abs(det_psi(itr) - det_psi(itr-1)) < tol_in || nf <= nf_min_in){
                 //itr_at = itr;
                 //write_final_beta(out_dir, LAM_cov, PSI, itr, seed);
                 //write_final_hidden(out_dir, LAM, Z, EX, EXX, O, PSI, lam_count_v, LAMX, PHI, itr, seed);
@@ -262,10 +280,16 @@ extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, do
             	    write_file <MatrixXd> (O,sin);
             
 		        }
+                
                 break;
             }
         }
     }
-    convert_results(LAM,EX,EXX,Z,O,PSI,nf,LAM_out,EX_out,EXX_out, Z_out,O_out,PSI_out, nf_out,s_n,d_y);
+    if(nf <= nf_min_in){
+        convert_results(LAM_bak,EX_bak,EXX_bak,Z_bak,O_bak,PSI_bak,nf_bak,LAM_out,EX_out,EXX_out, Z_out,O_out,PSI_out, nf_out,s_n,d_y);
+    }else{
+        convert_results(LAM,EX,EXX,Z,O,PSI,nf,LAM_out,EX_out,EXX_out, Z_out,O_out,PSI_out, nf_out,s_n,d_y);
+    }
+    
 }
 

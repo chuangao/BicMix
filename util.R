@@ -1,7 +1,7 @@
 
 run_sim <- function(data.config, method.config, itr=2001, inputDir=NULL, outputDir = NULL, script.path = NULL, bfrm.path=NULL, matlab.path = NULL, nfs=10, nf=15, ng= 500, ns=200, mc.cores=5){
     results<- do.call(rbind,mclapply((1:nrow(data.config)),function(i){
-        results<- do.call(rbind,mclapply((1:nrow(method.config)),function(j){
+        results<- do.call(rbind,mclapply(1:length(method.config),function(j){
             
             nfd <- nf - nfs
             
@@ -35,19 +35,25 @@ run_sim <- function(data.config, method.config, itr=2001, inputDir=NULL, outputD
             z <- NULL
             lam <- NULL
             
-            if(method == "SFAmix"){
-                outputDir.sfamix=file.path(outputDir,"sfamix")
+            a <- 0.5; b <- 0.5; c <- 0.5; d <- 0.5; e <- 0.5; f <- 0.5
+            
+            if(method == "SFAMix"){
+                outputDir.sfamix=file.path(outputDir,"sfamix",data.file.name)
                 dir.create(outputDir.sfamix)
                 
-                a <- b <- c <- d <- e <- f <- 0.5 
-                
                 results <- BicMixR(y=data$y, nf = 50, a=a,b=b,c=c,d=d,e=e,f=f, out_dir=outputDir.sfamix, 
-                                   rsd = 123, tol=1e-10, itr = itr, lam_method="element",x_method="dense")
+                                   rsd = 123, tol=1e-10, itr = itr, lam_method="element",x_method="dense",nf_min=1)
                 lam <- results$lam
                 z <- results$z
                 lams <- lam[,z>0.8,drop=F]
                 lamd <- lam[,z<=0.8,drop=F]
+            }else if(method == "SFAMix2"){
+                outputDir.sfamix2=file.path(outputDir,"sfamix",data.file.name)
+                dir.create(outputDir.sfamix2)
                 
+                prc <- prcomp(t(data$y), center = TRUE, scale = TRUE)
+                mtcars.pca <- prcomp(mtcars[,c(1:7,10,11)], center = TRUE,scale = TRUE)
+             
             }else if(method == "SBIF"){ 
                 outputDir.sbif=file.path(outputDir,'SBIF')
                 dir.create(outputDir.sbif)
@@ -154,7 +160,7 @@ gen_schema <- function(){
 
 plot_comparison <- function(res){
     
-    names(res) <- c("K","Std.err","Seed","Method","Std.effect","Local","Component","Global","Dense","Score Sparse","Score.sparse.precis","Score Dense","Score.dense.precis","Ks","Kd")
+    names(res) <- c("K","Std.err","Seed","Method","Std.effect","Dense","Score Sparse","Score.sparse.precis","Score Dense","Score.dense.precis","Ks","Kd")
     #res <- res[as.character(res$alg) == "element",]
     #names(res) <- c("K","Std.err","Seed","Method","alg","Std.effect","Local","Component","Global","Dense","Score Sparse","Score.sparse.precis","Score Dense","Score.dense.precis","Ks","Kd")
     res <- melt(res,id.vars = c("Std.err","Seed","Method","Dense"), measure.vars = c("Score Sparse","Score Dense"),variable.name = "Score.type", value.name = "Score")

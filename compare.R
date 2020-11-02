@@ -39,7 +39,7 @@ outputDir = table.path
 inputDir= data.path
 
 ##########################################################################
-std.err.list <- c(0.5,1,2)
+std.err.list <- c(0.5, 1, 2)
 dense.list <- c("TRUE","FALSE") ## whether loading has dense components
 seed.list <- 1:10
 std.effect.list <- 1
@@ -60,7 +60,7 @@ itr <- 2001
 
 i=1
 
-res <- run_sim(data.config[58,],method.config[1], itr = itr, inputDir=inputDir, outputDir = outputDir, script.path = script.path, bfrm.path=bfrm.path, matlab.path = matlab.path, nfs=nfs, nf=nf, ng=ng, ns=ns, mc.cores = 10)
+res <- run_sim(data.config[60,],method.config[1], itr = itr, inputDir=inputDir, outputDir = outputDir, script.path = script.path, bfrm.path=bfrm.path, matlab.path = matlab.path, nfs=nfs, nf=nf, ng=ng, ns=ns, mc.cores = 10)
 
 #write.csv(res,file.path(table.path,"res.csv"),row.names=F)
 

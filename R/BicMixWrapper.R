@@ -1,4 +1,4 @@
-BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, c_param, d_param, e_param, f_param, nf_param, itr_param, LAM_out, EX_out, Z_out, O_out, EXX_out, PSI_out, nf_out, out_itr, out_dir,rsd, lam_method, x_method, tol){
+BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, c_param, d_param, e_param, f_param, nf_param, itr_param, LAM_out, EX_out, Z_out, O_out, EXX_out, PSI_out, nf_out, out_itr, out_dir,rsd, lam_method, x_method, tol, nf_min){
 
     Y_TMP_param <- as.numeric(as.character(Y_TMP_param))   
     LAM_out <- rep(0,nrow_param*nf_param)
@@ -10,7 +10,7 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, c_param,
     nf_out <- rep(0,1)
     
     result <- .C ("BicMix",
-                  as.double(Y_TMP_param),as.integer(nrow_param), as.integer(ncol_param), as.double(a_param),as.double(b_param), as.double(c_param),as.double(d_param),as.double(e_param),as.double(f_param), as.integer(nf_param), as.integer(itr_param), LAM=as.double(LAM_out), EX=as.double(EX_out), Z=as.double(Z_out), O=as.double(O_out),EXX=as.double(EXX_out),PSI=as.double(PSI_out), nf=as.integer(nf_out), as.integer(out_itr), as.character(out_dir),as.integer(rsd),as.character(lam_method), as.character(x_method), as.double(tol),PACKAGE="BicMix")
+                  as.double(Y_TMP_param),as.integer(nrow_param), as.integer(ncol_param), as.double(a_param),as.double(b_param), as.double(c_param),as.double(d_param),as.double(e_param),as.double(f_param), as.integer(nf_param), as.integer(itr_param), LAM=as.double(LAM_out), EX=as.double(EX_out), Z=as.double(Z_out), O=as.double(O_out),EXX=as.double(EXX_out),PSI=as.double(PSI_out), nf=as.integer(nf_out), as.integer(out_itr), as.character(out_dir),as.integer(rsd),as.character(lam_method), as.character(x_method), as.double(tol),as.integer(nf_min), PACKAGE="BicMix")
 
     nf <- result[['nf']][1]
     
@@ -108,7 +108,7 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, c_param,
 #' @references \url{http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004791}
 
 #' @export BicMixR
-BicMixR <- function(y=NULL,nf=100,a=0.5,b=0.5,c=0.5,d=0.5, e=0.5,f=0.5, itr=5001,rsd=NULL,out_itr=200,out_dir=NULL, lam_method="matrix", x_method="dense", tol=1e-10, qnorm = TRUE){
+BicMixR <- function(y=NULL,nf=100,a=0.5,b=0.5,c=0.5,d=0.5, e=0.5,f=0.5, itr=5001,rsd=NULL,out_itr=200,out_dir=NULL, lam_method="matrix", x_method="dense", tol=1e-10, qnorm = TRUE, nf_min = 5){
     
 	#if(! "preprocessCore" %in% rownames(installed.packages())){
 	#	source("https://bioconductor.org/biocLite.R")
@@ -168,7 +168,7 @@ BicMixR <- function(y=NULL,nf=100,a=0.5,b=0.5,c=0.5,d=0.5, e=0.5,f=0.5, itr=5001
     O_out <- c()
     nf_out <- c()
 
-    result <- BicMix(y,sn,dy,a,b,c, d, e, f, nf,itr,LAM_out,EX_out,Z_out,O_out,EXX_out, PSI_out, nf_out, out_itr, out_dir2, rsd, lam_method, x_method, tol)
+    result <- BicMix(y,sn,dy,a,b,c, d, e, f, nf,itr,LAM_out,EX_out,Z_out,O_out,EXX_out, PSI_out, nf_out, out_itr, out_dir2, rsd, lam_method, x_method, tol, nf_min)
     return(result)
 }
 
