@@ -39,22 +39,16 @@ outputDir = table.path
 inputDir= data.path
 
 ##########################################################################
-std.err.list <- c(1,3,5)
+std.err.list <- c(0.5,1,2)
 dense.list <- c("TRUE","FALSE") ## whether loading has dense components
-method.list <- c("SBIF","BFRM","SPCA","KSVD")
 seed.list <- 1:10
-std.effect.list <- 2
-
-ab.config <- c("Horseshoe","Strawderman","Uniform")
+std.effect.list <- 1
 
 data.config <- expand.grid(std.err.list, seed.list, std.effect.list, dense.list)
 names(data.config) <- c("std.err", "seed", "std.effect","dense")
 
-sfa.config <- cbind("SFAmix",expand.grid(ab.config, ab.config, ab.config))
-names(sfa.config) <- c("method","local","component","global")
-
-method.config <- rbind(sfa.config,
-                       cbind(method=method.list,local="NA",component="NA",global="NA"))
+method.list <- c("SFAMix","SFAMix2","SBIF","BFRM","SPCA","KSVD")
+method.config <- method.list
 
 ng <- 500
 ns <- 200
@@ -66,101 +60,51 @@ itr <- 2001
 
 i=1
 
-res <- run_sim(data.config[i,],method.config[c(1, 28:31),], itr = itr, inputDir=inputDir, outputDir = outputDir, script.path = script.path, bfrm.path=bfrm.path, matlab.path = matlab.path, nfs=nfs, nf=nf, ng=ng, ns=ns, mc.cores = 10)
-#results <- res[[1]]
-#count.prob <- apply(results$z,2,function(x){return(sum(x > 0.5)/sn)})
+res <- run_sim(data.config[58,],method.config[1], itr = itr, inputDir=inputDir, outputDir = outputDir, script.path = script.path, bfrm.path=bfrm.path, matlab.path = matlab.path, nfs=nfs, nf=nf, ng=ng, ns=ns, mc.cores = 10)
 
-res2 <- extract_res(res)
-
-score.sparse.all <- res2$score.sparse
-score.dense.all <- res2$score.dense
+#write.csv(res,file.path(table.path,"res.csv"),row.names=F)
 
 
-score.sparse.all$std.err <- factor(score.sparse.all$std.err,levels=unique(score.sparse.all$std.err))
-score.dense.all$std.err <- factor(score.dense.all$std.err,levels=unique(score.dense.all$std.err))
+################################### plot comparing to other method, element
 
-score.sparse.all$method <- factor(score.sparse.all$method,levels=unique(score.sparse.all$method))
-score.dense.all$method <- factor(score.dense.all$method,levels=unique(score.dense.all$method))
+res <- read.csv(file.path(table.path,"res.csv"))
+#res <- res[(!is.na(res$alg) & as.character(res$alg) == "element") | is.na(res$alg),]
+res$method[res$method=="SFAmix"] <- "SFAMix"
+#res$method[!is.na(res$alg)] <- paste0(res$method[!is.na(res$alg)], "_", res$alg[!is.na(res$alg)])
+res$method <- factor(res$method, levels=c("SFAMix", "SBIF","BFRM","SPCA","KSVD"))
 
-names(score.sparse.all) <- c("n.effects", "Std.err", "seed",  "Method", "Std.effect","b", "dense", "Score")
-names(score.dense.all) <- c("n.effects", "Std.err", "seed",  "Method", "Std.effect","b", "dense", "Score")
+p.comp <- plot_comparison(res)
 
-score.dense.all <- score.dense.all[score.dense.all$dense == TRUE,]
-
-score.sparse.all$Data <- ifelse(score.sparse.all$dense,"Sparse-sim1","Sparse-sim2")
-score.dense.all$Data <- ifelse(score.dense.all$dense,"Dense-sim1")
-
-score.all <- rbind(score.sparse.all,score.dense.all)
-score.all$Data <- factor(score.all$Data,levels=unique(score.all$Data))
-
-
-file.csv <- file.path(table.path,paste0("comparison_stdErr1_7_stdEff2_nf",nf,"_nfs",nfs,"_p",500,"_n",200,"_a0.1_bstart",1000000,"_nfGrt_10_bfGrt1000.csv"))
-#write.csv(score.all,file.csv,row.names=F)
-
-score.all <- read.csv(file.csv,as.is=T) 
-
-score.all$Std.err <- factor(score.all$Std.err,levels=unique(score.all$Std.err))
-score.all$Std.err <- paste0("Sd.err=",score.all$Std.err)
-score.all$Method[score.all$Method == "BicMix2"] <- "BARF"
-score.all$Method <- factor(score.all$Method,levels=c("BARF","BicMix","BFRM","IFA","KSVD","SPCA"))
-score.all$Data <- factor(score.all$Data,levels=c("Sparse-sim1","Sparse-sim2","Dense-sim1"))
-
-#p <- ggplot(score.all, aes(x=Std.err,y=Score, color=Method)) + geom_boxplot(width=0.5,outlier.size=0.5) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + theme(legend.pos="top",legend.title=element_blank()) + scale_color_jco() + facet_grid(Data ~ . , scale="free_y")
-
-p <- ggplot(score.all, aes(x=Method,y=Score, color=Method)) + geom_boxplot(width=0.5,outlier.size=0.5) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + theme(legend.pos="top",legend.title=element_blank()) + scale_color_jco() + facet_grid(Data ~ Std.err , scale="free_y")+guides(colour=guide_legend(nrow=1,byrow=TRUE))
-
-
-
-file.pdf <- file.path(plot.path,paste0("comparison_stdErr1_7_stdEff2_nf",nf,"_nfs",nfs,"_p",500,"_n",200,"_a0.1_bstart",1000000,"_nfGrt_10_bfGrt1000.pdf"))
-pdf(file.pdf,width=8,height=6)
-print(p)
+file.pdf <- file.path(plot.path,"score_compare_methodselement.pdf")
+pdf(file.pdf,width=10,height=8)
+print(p.comp)
 dev.off()
 
-########### plot up the score for data with dense components
-# p.sparse1 <- ggplot(score.sparse.all[score.sparse.all$dense == TRUE,], aes(x=std.err,y=score.sparse, color=method)) + geom_boxplot(width=0.5,outlier.size=0.5) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + theme(legend.pos="top",legend.title=element_blank()) + scale_color_jco() + ylim(0,1)
-# #ggthemes::geom_tufteboxplot()
-# p.sparse2 <- ggplot(score.sparse.all[score.sparse.all$dense == FALSE,], aes(x=std.err,y=score.sparse, color=method)) + geom_boxplot(width=0.5,outlier.size=0.5) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + theme(legend.pos="none",legend.title=element_blank()) + scale_color_jco() + ylim(0,1)
-
-# lg <- as_ggplot(get_legend(p.sparse1)) + theme(plot.margin = unit(c(0,0,0,0), "cm"))
-   
-# p.sparse1 <- p.sparse1 + theme(legend.position="none")
-
-# p.dense <- ggplot(score.dense.all[score.sparse.all$dense == TRUE,], aes(x=std.err,y=score.dense, color=method)) + geom_boxplot(width=0.5,outlier.size=0.5) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + theme(legend.pos="none") + scale_color_jco() + ylim(0,1)
 
 
-# #lay <- matrix(c(rep(c(1,2),6),3,3),nrow=2)
-# #lay <- matrix(rep(1:4,c(1,4,4,4)),ncol=1)
-# lay <- matrix(c(c(1,2,2,2,2),c(1,3,3,3,3),c(1,4,4,4,4)),ncol=3)
 
 
-# file.png <- file.path(plot.path,paste0("comparison_self_stdErr1_7_stdEff2_p500_n200_a0.1_bstart1000000_nfGrt_sqrt(dy)_bfGrt1000_mixture.png"))
-# png(file.png,width=2400,height=1600, res = 300)
-# grid.arrange(lg, p.sparse1,p.sparse2,p.dense,layout_matrix = lay) + theme(plot.margin = unit(c(0,0,0,0), "cm"))
-# dev.off()
-
-############# plot up results with different b values
-p.sparse1 <- ggplot(score.sparse.all[score.sparse.all$dense == TRUE,], aes(x=std.err,y=score.sparse, color=method)) + geom_boxplot(width=0.5,outlier.size=0.5) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + theme(legend.pos="top",legend.title=element_blank()) + scale_color_jco() + ylim(0,1) + facet_grid(. ~ b)
-#ggthemes::geom_tufteboxplot()
-p.sparse2 <- ggplot(score.sparse.all[score.sparse.all$dense == FALSE,], aes(x=std.err,y=score.sparse, color=method)) + geom_boxplot(width=0.5,outlier.size=0.5) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + theme(legend.pos="none",legend.title=element_blank()) + scale_color_jco() + ylim(0,1) + facet_grid(. ~ b)
-
-lg <- as_ggplot(get_legend(p.sparse1)) + theme(plot.margin = unit(c(0,0,0,0), "cm"))
-   
-p.sparse1 <- p.sparse1 + theme(legend.position="none")
-
-p.dense <- ggplot(score.dense.all[score.sparse.all$dense == TRUE,], aes(x=std.err,y=score.dense, color=method)) + geom_boxplot(width=0.5,outlier.size=0.5) + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + theme(legend.pos="none") + scale_color_jco() + facet_grid(. ~ b)
 
 
-#lay <- matrix(c(rep(c(1,2),6),3,3),nrow=2)
-#lay <- matrix(rep(1:4,c(1,4,4,4)),ncol=1)
-#lay <- matrix(c(c(1,2,2,2,2),c(1,3,3,3,3),c(1,4,4,4,4)),ncol=3)
-lay <- matrix(c(
-    rep(1:3,6),
-    rep(4,3)
-),nrow=3)
 
 
-file.png <- file.path(plot.path,paste0("comparison_self_stdErr1_7_stdEff2_p500_n200_a0.1_bstart1-3-5-7-10E5_nfGrt_1_bfGrt1000.png"))
-png(file.png,width=2400,height=1600, res = 300)
-grid.arrange(p.sparse1,p.sparse2,p.dense,ncol=1) + theme(plot.margin = unit(c(0,0,0,0), "cm"))
-dev.off()
+##########################################################
 
+ab.config <- c("Horseshoe","Strawderman","Uniform")
+#alg.config <- c("matrix","element")
+
+sfa.config <- cbind("SFAmix",expand.grid(ab.config, ab.config, ab.config))
+names(sfa.config) <- c("method","local","component","global")
+
+method.config <- rbind(sfa.config,
+                       cbind(method=method.list,local="NA",component="NA",global="NA"))
+
+local <- as.character(method.config[j,"local"])
+component <- as.character(method.config[j,"component"])
+global <- as.character(method.config[j,"global"])
+
+shapes <- data.frame(Horseshoe=c(0.5,0.5), Strawderman=c(1,0.5), Uniform=c(1,1))
+
+a <- shapes[,method.config[j,"local"]][1]; b <- shapes[,method.config[j,"local"]][2]
+c <- shapes[,method.config[j,"component"]][1]; d <- shapes[,method.config[j,"component"]][2]
+e <- shapes[,method.config[j,"global"]][1]; f <- shapes[,method.config[j,"global"]][2]

@@ -174,17 +174,19 @@ BicMixR <- function(y=NULL,nf=100,a=0.5,b=0.5,c=0.5,d=0.5, e=0.5,f=0.5, itr=5001
 
 gen_sparse_matrix <- function(std=2, rsd = 123, nf = 10, ng = 500){
   set.seed(rsd)
- 
+  
   lam <- matrix(0,nrow=ng,ncol=nf)
   
   ########## simulate lam
   for(i in 1:nf){
-    block <- sample(min(20,ng/2):min(50,ng),1)
-    start <- sample(1:(ng-block),1)
-    lam[start + 1:block,i] = rnorm(block,0,std)
+    block.size <- sample(min(20,ng/2):min(50,ng),1)
+    index <- sample(1:ng,block.size,replace=F)
+    lam[index,i] = rnorm(length(index),0,std)
   }
+  #index <- unlist(apply(lam,2,function(x){return(which(x!=0))}))
   lam
 }
+
 
 gen_dense_matrix <- function(std=2, rsd = 123, nf = 5, ng = 500){
   set.seed(rsd)
@@ -214,7 +216,13 @@ gen_dense_matrix <- function(std=2, rsd = 123, nf = 5, ng = 500){
 #' @return y: the y matrix calculated as y = lam * ex + err
 #' @export
 
-gen_BicMix_data <- function(std=2, rsd = NULL, std.err=1, nf = 15, nfs = 10, ng = 500, ns=300, type.loading="mixture",type.factor="dense"){
+gen_BicMix_data <- function(std=2, rsd = NULL, std.err=1, nf = 15, nfs = 10, ng = 500, ns=200, type.loading="mixture",type.factor="dense"){
+  
+  
+  if(is.null(rsd)){
+    rsd = sample(1:1000000,1)
+    warning("You didn't specify a random seed, one is randomly generated.\n")
+  }
   
   set.seed(rsd)
   
@@ -224,13 +232,9 @@ gen_BicMix_data <- function(std=2, rsd = NULL, std.err=1, nf = 15, nfs = 10, ng 
   
   ex <- NA
   
-  if(is.null(rsd)){
-    rsd = sample(1:1000000,1)
-    warning("You didn't specify a random seed, one is randomly generated.\n")
-  }
-  
   if(type.loading == "sparse"){
     lam <- gen_sparse_matrix(std=std, rsd = rsd, nf = nf, ng = ng)
+    lams <- lam
   }else if(type.loading=="mixture"){
     lams <- gen_sparse_matrix(std=std, rsd = rsd, nf = nfs, ng = ng)
     lamd <- gen_dense_matrix(std=std, rsd = rsd, nf = nf - nfs, ng = ng)
