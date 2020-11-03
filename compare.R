@@ -11,9 +11,10 @@ library(SSLASSO)
 library(dplyr)
 library(ggpubr)
 library(reshape2)
-library("ggsci")
+library(ggsci)
 library(BicMix)
 library(PMA)
+library(cowplot)
 
 
 setwd("~/BicMix")
@@ -47,7 +48,7 @@ std.effect.list <- 1
 data.config <- expand.grid(std.err.list, seed.list, std.effect.list, dense.list)
 names(data.config) <- c("std.err", "seed", "std.effect","dense")
 
-method.list <- c("SFAMix","SFAMix2","SBIF","BFRM","SPCA","KSVD")
+method.list <- c("SFAMix","SBIF","BFRM","SPCA","KSVD")
 method.config <- method.list
 
 ng <- 500
@@ -60,8 +61,8 @@ itr <- 2001
 
 i=1
 
-res <- run_sim(data.config[60,],method.config[1], itr = itr, inputDir=inputDir, outputDir = outputDir, script.path = script.path, bfrm.path=bfrm.path, matlab.path = matlab.path, nfs=nfs, nf=nf, ng=ng, ns=ns, mc.cores = 10)
-
+res <- run_sim(data.config,method.config, itr = itr, inputDir=inputDir, outputDir = outputDir, script.path = script.path, bfrm.path=bfrm.path, matlab.path = matlab.path, nfs=nfs, nf=nf, ng=ng, ns=ns, mc.cores = 10)
+res.bak <- res
 #write.csv(res,file.path(table.path,"res.csv"),row.names=F)
 
 
@@ -69,14 +70,14 @@ res <- run_sim(data.config[60,],method.config[1], itr = itr, inputDir=inputDir, 
 
 res <- read.csv(file.path(table.path,"res.csv"))
 #res <- res[(!is.na(res$alg) & as.character(res$alg) == "element") | is.na(res$alg),]
-res$method[res$method=="SFAmix"] <- "SFAMix"
+#res$method[res$method=="SFAmix"] <- "SFAMix"
 #res$method[!is.na(res$alg)] <- paste0(res$method[!is.na(res$alg)], "_", res$alg[!is.na(res$alg)])
 res$method <- factor(res$method, levels=c("SFAMix", "SBIF","BFRM","SPCA","KSVD"))
 
 p.comp <- plot_comparison(res)
 
 file.pdf <- file.path(plot.path,"score_compare_methodselement.pdf")
-pdf(file.pdf,width=10,height=8)
+pdf(file.pdf,width=8,height=8)
 print(p.comp)
 dev.off()
 
@@ -89,22 +90,22 @@ dev.off()
 
 
 ##########################################################
-
-ab.config <- c("Horseshoe","Strawderman","Uniform")
-#alg.config <- c("matrix","element")
-
-sfa.config <- cbind("SFAmix",expand.grid(ab.config, ab.config, ab.config))
-names(sfa.config) <- c("method","local","component","global")
-
-method.config <- rbind(sfa.config,
-                       cbind(method=method.list,local="NA",component="NA",global="NA"))
-
-local <- as.character(method.config[j,"local"])
-component <- as.character(method.config[j,"component"])
-global <- as.character(method.config[j,"global"])
-
-shapes <- data.frame(Horseshoe=c(0.5,0.5), Strawderman=c(1,0.5), Uniform=c(1,1))
-
-a <- shapes[,method.config[j,"local"]][1]; b <- shapes[,method.config[j,"local"]][2]
-c <- shapes[,method.config[j,"component"]][1]; d <- shapes[,method.config[j,"component"]][2]
-e <- shapes[,method.config[j,"global"]][1]; f <- shapes[,method.config[j,"global"]][2]
+# 
+# ab.config <- c("Horseshoe","Strawderman","Uniform")
+# #alg.config <- c("matrix","element")
+# 
+# sfa.config <- cbind("SFAmix",expand.grid(ab.config, ab.config, ab.config))
+# names(sfa.config) <- c("method","local","component","global")
+# 
+# method.config <- rbind(sfa.config,
+#                        cbind(method=method.list,local="NA",component="NA",global="NA"))
+# 
+# local <- as.character(method.config[j,"local"])
+# component <- as.character(method.config[j,"component"])
+# global <- as.character(method.config[j,"global"])
+# 
+# shapes <- data.frame(Horseshoe=c(0.5,0.5), Strawderman=c(1,0.5), Uniform=c(1,1))
+# 
+# a <- shapes[,method.config[j,"local"]][1]; b <- shapes[,method.config[j,"local"]][2]
+# c <- shapes[,method.config[j,"component"]][1]; d <- shapes[,method.config[j,"component"]][2]
+# e <- shapes[,method.config[j,"global"]][1]; f <- shapes[,method.config[j,"global"]][2]

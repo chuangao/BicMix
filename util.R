@@ -39,57 +39,73 @@ run_sim <- function(data.config, method.config, itr=2001, inputDir=NULL, outputD
             
             if(method == "SFAMix"){
                 outputDir.sfamix=file.path(outputDir,"sfamix",data.file.name)
-                dir.create(outputDir.sfamix)
+                dir.create(outputDir.sfamix, recursive = T)
                 
-                results <- BicMixR(y=data$y, nf = 50, a=a,b=b,c=c,d=d,e=e,f=f, out_dir=outputDir.sfamix, 
+                results <- BicMixR(y=data$y, nf = 50, a=a,b=b,c=c,d=d,e=e,f=f, out_dir=outputDir.sfamix, out_itr = 500, 
                                    rsd = 123, tol=1e-10, itr = itr, lam_method="element",x_method="dense",nf_min=1)
                 lam <- results$lam
                 z <- results$z
                 lams <- lam[,z>0.8,drop=F]
                 lamd <- lam[,z<=0.8,drop=F]
-            }else if(method == "SFAMix2"){
-                outputDir.sfamix2=file.path(outputDir,"sfamix",data.file.name)
-                dir.create(outputDir.sfamix2)
-                
-                prc <- prcomp(t(data$y), center = TRUE, scale = TRUE)
-                mtcars.pca <- prcomp(mtcars[,c(1:7,10,11)], center = TRUE,scale = TRUE)
-             
+            # }else if(method == "SFAMix2"){
+            #     outputDir.sfamix2=file.path(outputDir,"sfamix2",data.file.name)
+            #     dir.create(outputDir.sfamix2, recursive = T)
+            #     
+            #     prc <- prcomp(data$y, center = TRUE, scale = FALSE)
+            #     y <- lm(data$y ~ prc$x[,1:5])$residual
+            #     
+            #     results <- BicMixR(y=y, nf = 50, a=a,b=b,c=c,d=d,e=e,f=f, out_dir=outputDir.sfamix2, 
+            #                        rsd = 123, tol=1e-10, itr = itr, lam_method="element",x_method="dense",nf_min=1)
+            #     lam <- results$lam
+            #     z <- results$z
+            #     lams <- lam[,z>0.8,drop=F]
+            #     lamd <- lam[,z<=0.8,drop=F]
+            #  
             }else if(method == "SBIF"){ 
                 outputDir.sbif=file.path(outputDir,'SBIF')
-                dir.create(outputDir.sbif)
+                dir.create(outputDir.sbif, recursive = T)
                 res <- sbif(inputDir=inputDir,inputFileName=data.file.name,n=ns,p=ng,k=nf,outputDir=outputDir.sbif,scriptFile=file.path(script.path, 'SBIF/SBIF_chuan.m'),matlabWhere=matlab.path)
                 
                 lam <- res$lam
-                lam <- lam[,ncol(lam):1,drop=F]
+                #lam <- lam[,ncol(lam):1,drop=F]
                 count <- apply(lam,2,function(x){return(sum(x!=0))})
                 lam <- lam[,count>0,drop=F]
-                lams <- lam[,1:min(ncol(lam),nfs),drop=F]
+                #lams <- lam[,1:min(ncol(lam),nfs),drop=F]
                 
-                if(dense){  
-                    if(ncol(lam) > nfs){lamd <- lam[,(nfs+1):ncol(lam),drop=FALSE]}else{lamd <- NA}
-                }
-            }else{
-                if(method == "SPCA"){
-                    lam <- SPC(t(data$y),sumabsv=4,K=nf,niter=100)
-                    lam <- lam$v
-                }else if(method == "KSVD"){
-                    outputDir.ksvd=file.path(outputDir,"KSVD")
-                    dir.create(outputDir.ksvd)
-                    res <- ksvd(inputDir=inputDir,inputFileName=data.file.name,n=ns,p=ng,k=nf,outputDir=outputDir.ksvd,scriptFile=file.path(script.path, 'KSVD/mine_sim.m'),matlabWhere=matlab.path)
-                    lam <- res$lam
-                }else if(method == "BFRM"){  
-                    outputDir.bfrm=file.path(outputDir, 'BFRM')
-                    dir.create(outputDir.bfrm)
-                    res <- bfrm(inputDir=inputDir, inputFileName=data.file.name,n=ns,p=ng,k=nf, outputDir=outputDir.bfrm,scriptFile=file.path(script.path, 'BFRM/parameters.txt'),bfrmWhere=bfrm.path)
-                    lam <- res$lam
-                }
-                index.lam <- order(apply(lam,2,var))
-                lams <- lam[,index.lam[1:(nfs)],drop=F]
-                if(dense){  
-                    lamd <- lam[,index.lam[(nfs+1):nf],drop=F]
-                }
-            } 
+                #if(dense){  
+                #    if(ncol(lam) > nfs){lamd <- lam[,(nfs+1):ncol(lam),drop=FALSE]}
+                #}
+            #}else{
+                outputDir.spca=file.path(outputDir,'SPCA',data.file.name)
+                dir.create(outputDir.spca, recursive = T)
+            }else if(method == "SPCA"){
+                outputDir.spca=file.path(outputDir,'SPCA',data.file.name)
+                dir.create(outputDir.spca, recursive = T)
+                lam <- SPC(t(data$y),sumabsv=4,K=nf,niter=100)
+                lam <- lam$v
+                write.table(lam,file.path(outputDir.spca,"lam.txt"))
+            }else if(method == "KSVD"){
+                outputDir.ksvd=file.path(outputDir,"KSVD")
+                dir.create(outputDir.ksvd, recursive = T)
+                res <- ksvd(inputDir=inputDir,inputFileName=data.file.name,n=ns,p=ng,k=nf,outputDir=outputDir.ksvd,scriptFile=file.path(script.path, 'KSVD/mine_sim.m'),matlabWhere=matlab.path)
+                lam <- res$lam
+            }else if(method == "BFRM"){  
+                outputDir.bfrm=file.path(outputDir, 'BFRM')
+                dir.create(outputDir.bfrm, recursive = T)
+                res <- bfrm(inputDir=inputDir, inputFileName=data.file.name,n=ns,p=ng,k=nf, outputDir=outputDir.bfrm,scriptFile=file.path(script.path, 'BFRM/parameters.txt'),bfrmWhere=bfrm.path)
+                lam <- res$lam
+            }
             
+            if(method != "SFAMix" && method != "SFAMix2"){
+                index.lam <- order(apply(lam,2,var))
+                lam <- lam[,index.lam]
+                lams <- lam[,1:min(ncol(lam),nfs),drop=F]
+                if(dense){  
+                    #lamd <- lam[,index.lam[(nfs+1):nf],drop=F]
+                    if(ncol(lam) > nfs){lamd <- lam[,(nfs+1):ncol(lam),drop=FALSE]}
+                }
+            }
+         
             nfs.o <- ifelse(is.null(lams),NA,ncol(lams))
             nfd.o <- ifelse(is.null(lamd),NA,ncol(lamd))
             
@@ -105,7 +121,7 @@ run_sim <- function(data.config, method.config, itr=2001, inputDir=NULL, outputD
             score.dense.precis <- NA
             
             
-            if(length(lamd) != 0){
+            if(length(lamd) != 0 && length(data$lamd) != 0){
                 score.dense <- cal_score_dense(lamd,data$lamd)
                 score.dense.precis <- cal_score_dense(lamd,data$lamd, precis=TRUE)
             }
@@ -125,7 +141,8 @@ format_font <- function(p, size=14){
                font.main=size,
                font.x=size,
                font.y=size,
-               font.legend=size)
+               font.legend=size,
+               font.tickslab = size-4)
     p <- p + grids()
 }
 
@@ -165,16 +182,18 @@ plot_comparison <- function(res){
     #names(res) <- c("K","Std.err","Seed","Method","alg","Std.effect","Local","Component","Global","Dense","Score Sparse","Score.sparse.precis","Score Dense","Score.dense.precis","Ks","Kd")
     res <- melt(res,id.vars = c("Std.err","Seed","Method","Dense"), measure.vars = c("Score Sparse","Score Dense"),variable.name = "Score.type", value.name = "Score")
     res <- res[!(!res$Dense & res$Score.type=="Score Dense"),] ## sparse simulations have no dense scores
+    #res <- res[res$Dense,]
     
     res$Data <- ifelse(res$Dense,"Sim2","Sim1")
     res$Type <- paste(res$Score.type, res$Data)
     res$Std.err <- paste0("Std_err=",res$Std.err)
     
-    res$Type <- factor(res$Type, levels=c("Score Sparse Sim1","Score Sparse Sim2","Score Dense Sim1"))
+    res$Type <- factor(res$Type, levels=c("Score Sparse Sim1","Score Sparse Sim2","Score Dense Sim2"))
     
+    #res$Score = as.numeric(res$Score)
     p <- ggboxplot(res,x="Method",y="Score",color="Method",palette="jco",add="jitter",shape="Method")
     p <- facet(p,facet.by = c("Type","Std.err"), panel.labs.font = list(size=14))
-    p <- format_font(p, size=16) + rotate_x_text(angle=45) 
+    p <- format_font(p, size=18) + rotate_x_text(angle=45) 
     p <- ggpar(p, legend.title = NULL) + panel_border() + background_grid()
     
     p

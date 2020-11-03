@@ -108,7 +108,7 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, c_param,
 #' @references \url{http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004791}
 
 #' @export BicMixR
-BicMixR <- function(y=NULL,nf=100,a=0.5,b=0.5,c=0.5,d=0.5, e=0.5,f=0.5, itr=5001,rsd=NULL,out_itr=200,out_dir=NULL, lam_method="matrix", x_method="dense", tol=1e-10, qnorm = TRUE, nf_min = 5){
+BicMixR <- function(y=NULL,nf=100,a=0.5,b=0.5,c=0.5,d=0.5, e=0.5,f=0.5, itr=5001,rsd=NULL,out_itr=200,out_dir=NULL, lam_method="matrix", x_method="dense", tol=1e-10, qnorm = TRUE, nf_min = 1){
     
 	#if(! "preprocessCore" %in% rownames(installed.packages())){
 	#	source("https://bioconductor.org/biocLite.R")
@@ -218,7 +218,6 @@ gen_dense_matrix <- function(std=2, rsd = 123, nf = 5, ng = 500){
 
 gen_BicMix_data <- function(std=2, rsd = NULL, std.err=1, nf = 15, nfs = 10, ng = 500, ns=200, type.loading="mixture",type.factor="dense"){
   
-  
   if(is.null(rsd)){
     rsd = sample(1:1000000,1)
     warning("You didn't specify a random seed, one is randomly generated.\n")
@@ -226,11 +225,11 @@ gen_BicMix_data <- function(std=2, rsd = NULL, std.err=1, nf = 15, nfs = 10, ng 
   
   set.seed(rsd)
   
-  lam <- NA
-  lams <- NA
-  lamd <- NA
+  lam <- NULL
+  lams <- NULL
+  lamd <- NULL
   
-  ex <- NA
+  ex <- NULL
   
   if(type.loading == "sparse"){
     lam <- gen_sparse_matrix(std=std, rsd = rsd, nf = nf, ng = ng)

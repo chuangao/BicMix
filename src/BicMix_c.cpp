@@ -216,7 +216,7 @@ extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, do
             det_psi(itr) = det_psi(itr)+log(PSI(i));
         }
         
-        if(itr%10==0){
+        if(itr%100==0){
             cout << "itr " << itr << endl;
             
             cout << "number of factors " << nf << endl;
@@ -252,7 +252,7 @@ extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, do
 		    }
         }
         if(itr>10){
-            if(abs(det_psi(itr) - det_psi(itr-1)) < tol_in || nf <= nf_min_in){
+            if(abs(det_psi(itr) - det_psi(itr-1)) < tol_in || nf <= nf_min_in || itr == n_itr){
                 //itr_at = itr;
                 //write_final_beta(out_dir, LAM_cov, PSI, itr, seed);
                 //write_final_hidden(out_dir, LAM, Z, EX, EXX, O, PSI, lam_count_v, LAMX, PHI, itr, seed);

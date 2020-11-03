@@ -1021,7 +1021,7 @@ void cal_psi(VectorXd& PSI,MatrixXd& LX, MatrixXd& Y,MatrixXd& LAM, MatrixXd& EX
     #pragma omp parallel for
     for(int i=0;i<s_n;i++){
         PSI(i)=(0.5*(Y.row(i).dot(Y.row(i))-2*(LX.row(i)).dot(Y.row(i))+(LAM.row(i)*EXX).dot(LAM.row(i)))+1)/(double(d_y)/2+1);
-        
+
     }
     //PSI=PSI/d_y;
 }
