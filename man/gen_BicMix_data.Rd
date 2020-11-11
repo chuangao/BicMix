@@ -11,7 +11,7 @@ gen_BicMix_data(
   nf = 15,
   nfs = 10,
   ng = 500,
-  ns = 300,
+  ns = 200,
   type.loading = "mixture",
   type.factor = "dense"
 )

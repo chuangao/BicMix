@@ -20,50 +20,51 @@ BicMixR(
   lam_method = "matrix",
   x_method = "dense",
   tol = 1e-10,
-  qnorm = TRUE
+  qnorm = TRUE,
+  nf_min = 1
 )
 }
 \arguments{
-\item{y}{matrix to be decomposed, no missing values are allowed, each row is a feature, each column is a sample}
+\item{y}{matrix to be decomposed, no missing values are allowed, each row is a feature and each column is a sample}
 
-\item{nf}{the number of factors for the algorithm to start with, will be shrank to a smaller number reflecting the number of factors needed to explain the variance, default to 100}
+\item{nf}{the number of factors to start with, default to 100}
 
-\item{a}{first shape parameter for the tpb distribution at the third leve of the hierarchy, default to 0.5 to recapitulate horseshoe}
+\item{a}{first shape parameter for the tpb distribution at the local level of the hierarchy, default to 0.5 to recapitulate horseshoe}
 
-\item{b}{second shape parameter for the tpb distribution at the third leve of the hierarchy, default to 0.5 to recapitulate horseshoe}
+\item{b}{second shape parameter for the tpb distribution at the local level of the hierarchy, default to 0.5 to recapitulate horseshoe}
 
-\item{c}{first shape parameter for the tpb distribution at the second leve of the hierarchy, default to 0.5 to recapitulate horseshoe}
+\item{c}{first shape parameter for the tpb distribution at the component specific level of the hierarchy, default to 0.5 to recapitulate horseshoe}
 
-\item{d}{second shape parameter for the tpb distribution at the second leve of the hierarchy, default to 0.5 to recapitulate horseshoe}
+\item{d}{second shape parameter for the tpb distribution at the component specific level of the hierarchy, default to 0.5 to recapitulate horseshoe}
 
-\item{e}{first shape parameter for the tpb distribution at the first leve of the hierarchy, default to 0.5 to recapitulate horseshoe}
+\item{e}{first shape parameter for the tpb distribution at the gloabal level of the hierarchy, default to 0.5 to recapitulate horseshoe}
 
-\item{f}{second shape parameter for the tpb distribution at the first leve of the hierarchy, default to 0.5 to recapitulate horseshoe}
+\item{f}{second shape parameter for the tpb distribution at the global level of the hierarchy, default to 0.5 to recapitulate horseshoe}
 
-\item{itr}{The maximum number of iterations the algorithm is allowed to run, default to 5000}
+\item{itr}{the maximum number of iterations the algorithm is allowed to run, default to 5000}
 
-\item{rsd}{random seed for initializing the parameter values, default to a randomly drawn number}
+\item{rsd}{random seed used for initializing the parameter values, default to a randomly drawn number}
 
-\item{out_itr}{Iteration number at which the algorithm will write temporary results into a specified directory (see below), default to 200}
+\item{out_itr}{iteration number at which the algorithm writes temporary output, default to 200}
 
-\item{out_dir}{Directory where the algorithm will write temporary results into}
+\item{out_dir}{directory where the algorithm will write temporary output}
 
-\item{lam_method}{the method used to update the loading matrix, take values either "matrix" or "element".  if "matrix", then all component are updated simultaneously (slower but more stable, don't need as many iterations to converge); if "element", each component is updated sequentially (faster but less stable, and need more iterations to converge), default to "matrix"}
+\item{lam_method}{the method used to update the loading matrix, take values either "matrix" or "element".  if "matrix", then all component are updated simultaneously (slower but more stable, don't need as many iterations to converge); if "element", each component is updated sequentially (faster but could beless stable, and need more iterations to converge), default to "matrix"}
 
 \item{x_method}{whether induce sparsity on the X matrix, take values either "sparse" or "dense". default to "dense"}
 
 \item{tol}{tolerance threshold for convergence, default to 1e-5}
 
-\item{qnorm}{whether to qq-normalize the gene expression matrix, default to FALSE}
+\item{qnorm}{whether to quantile-normalize the gene expression matrix, default to TRUE}
 }
 \value{
 lam: the sparse loading matrix
 
 ex: the factor matrix
 
-z: a vector indicating whether the corresponding loading is sparse (value of 1 indicate sparse)
+z: a vector indicating whether the loadings are sparse (1 indicate sparse)
 
-o: a vector indicating whether the corresponding factor is sparse (value of 1 indicate sparse)
+o: a vector indicating whether the factors are sparse (1 indicate sparse)
 
 nf: the number of factors learned by the model
 
@@ -74,30 +75,27 @@ An algorithm for decomposing a high dimensional matrix into the product of a spa
 }
 \examples{
 library(BicMix)
-## Following is an example on how to use BicMix to generate biclusters (sparsity is induced on both the loading and factor matrices)
-## simulate data, the parameter std specifies the standard error of non-zero entries in the
-## loading and factor matrices, where a normal distribution of mean zero
-## is assumed for these values.
-data = gen_BicMix_data(std=2, type.factor="mixture")
+## The following is an example on how to use BicMix to obtain biclusters (sparsity is induced on both the loading and factor matrices)
+## simulate data
+data = gen_BicMix_data(std=2, type.factor="mixture",rsd=123)
 ## Visualize the loading matrix
 image(t(data$lam),x=1:ncol(data$lam),y=1:nrow(data$lam),xlab="Loadings",ylab="Samples")
 ## Visualize the factor matrix
 image(t(data$ex),x=1:ncol(data$ex),y=1:nrow(data$ex),xlab="Samples",ylab="Factors")
-## run algorithm on the simulated data
-system("mkdir results")
+## run BicMix on the simulated data
+dir.create("results")
 result = BicMixR(data$y,nf=100,out_dir="results",tol=1e-10,x_method="sparse",rsd=123)
 ## calculate a correlation matrix of the estimated loading matrix 
 ## and the true loading matrix. Ideally, there should be one and 
 ## only one big correlation value for a given row and column of the 
-## correlation matrix if the recovered sparse loadings and the true sparse loadings
+## correlation matrix
 cor.est.real = cor(result$lam[,result$z==1],data$lams)
 ## visualize the correlation matrix
 image(cor.est.real,x=1:nrow(cor.est.real),y=1:ncol(cor.est.real),
 xlab="Recovered loadings",ylab="True loadings")
-
 ## calculate similarity score of the recovered loading matrix and the true loading matrix
 cal_score_sparse(result$lam[,result$z>0.9],data$lams)
-## Following is an example on how to use BicMix to generate one way clusters (sparsity is induced on the loading matrix, not on the factor matrix)
+## The following is an example on how to use BicMix to obtain clustering of the genes, while keeping the X matrix sparse (sparsity is induced on the loading matrix, not on the factor matrix)
 ## simulate data
 data = gen_BicMix_data(std=2, type.factor="dense", rsd = 123)
 ## perform analysis

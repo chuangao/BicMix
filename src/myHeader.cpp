@@ -360,8 +360,8 @@ int count_total_non_zero(MatrixXd& M,int r, int c){
 
 
 void cal_tau(VectorXd &KAPPA, VectorXd &LAMX, double OMEGA, int nf, double c, double d){
-    Eigen::initParallel();
-    #pragma omp parallel for
+    //Eigen::initParallel();
+    //#pragma omp parallel for
     for(int i=0;i<nf;i++){
         KAPPA(i)=double(c+d)/(LAMX(i)+OMEGA);
     }
@@ -525,9 +525,9 @@ void cal_lamx(VectorXd& LAMX, MatrixXd& O, VectorXd& KAPPA, MatrixXd& RHO,Matrix
 */
 
 void cal_phi(VectorXd& PHI, MatrixXd& Z, VectorXd& TAU, MatrixXd& DELTA,MatrixXd& LAM, int nf, int s_n, double b, double c, bool cln){
-    Eigen::initParallel();
+    //Eigen::initParallel();
     
-    #pragma omp parallel for
+    //#pragma omp parallel for
     for(int i=0;i<nf;i++){
         double lam_sum=0;
         double sum_c=s_n*b*Z(0,i)+c-1-0.5*s_n*Z(1,i);
@@ -567,8 +567,8 @@ void cal_rho(MatrixXd& RHO, MatrixXd& SIGMA, VectorXd& LAMX, double a, double b,
 
 void cal_delta(MatrixXd& DELTA,MatrixXd& THETA,VectorXd& PHI,double a, double b,int nf, int s_n, bool cln){
     
-    Eigen::initParallel();
-    #pragma omp parallel for collapse(2)
+    //Eigen::initParallel();
+    //#pragma omp parallel for collapse(2)
     for(int i=0;i<s_n;i++){
         for(int j=0;j<nf;j++){
             if(cln){
@@ -598,8 +598,8 @@ void cal_sigma(MatrixXd& SIGMA,MatrixXd& EX, MatrixXd& RHO, double a, int d_y, i
 void cal_theta(MatrixXd& THETA,MatrixXd& LAM,MatrixXd& DELTA,double a, int s_n, int nf, bool cln){
     
     double a23=(2*a-3);
-    Eigen::initParallel();
-    #pragma omp parallel for collapse(2)
+    //Eigen::initParallel();
+    //#pragma omp parallel for collapse(2)
     for(int i=0;i<s_n;i++){
         for(int j=0;j<nf;j++){
             if(cln){
@@ -686,7 +686,7 @@ void cal_ex(MatrixXd& EX, MatrixXd& LAM,MatrixXd& Y,VectorXd& PSI_INV, MatrixXd&
     
     EXX.setZero();
     
-    Eigen::initParallel();
+    //Eigen::initParallel();
 
     for(int j=0;j<d_y;j++){
         int count_indexALL=0;
@@ -705,7 +705,7 @@ void cal_ex(MatrixXd& EX, MatrixXd& LAM,MatrixXd& Y,VectorXd& PSI_INV, MatrixXd&
         
         //partV.setZero();
         MatrixXd partV = MatrixXd::Constant(nf,nf,0);
-        #pragma omp parallel for
+        //#pragma omp parallel for
         for(int i1=0;i1<count_indexALL;i1++){
             for(int i2=0;i2<count_indexALL;i2++){
                 partV(indexALL(i1),indexALL(i2)) = LPL(indexALL(i1),indexALL(i2));
@@ -714,7 +714,7 @@ void cal_ex(MatrixXd& EX, MatrixXd& LAM,MatrixXd& Y,VectorXd& PSI_INV, MatrixXd&
         }
         
         MatrixXd partVI=MatrixXd::Constant(count_indexALL,count_indexALL,0);
- 	    #pragma omp parallel for collapse(2)
+ 	    //#pragma omp parallel for collapse(2)
         for(int i1=0;i1<count_indexALL;i1++){
             for(int i2=0;i2<count_indexALL;i2++){
                 partVI(i1,i2)=partV(indexALL(i1),indexALL(i2));
@@ -737,7 +737,7 @@ void cal_ex(MatrixXd& EX, MatrixXd& LAM,MatrixXd& Y,VectorXd& PSI_INV, MatrixXd&
         
         cpy_col_matrix_bak(EX,EXI,indexALL,count_indexALL,j,0);
         EXXI=EXI*EXI.transpose();
- 	    #pragma omp parallel for collapse(2)
+ 	    //#pragma omp parallel for collapse(2)
         for(int i1=0;i1<count_indexALL;i1++){
             for(int i2=0;i2<count_indexALL;i2++){
                 EXX(indexALL(i1),indexALL(i2)) += EXXI(i1,i2)+vx(i1,i2);
@@ -756,10 +756,10 @@ void cal_ex(MatrixXd& EX, MatrixXd& LAM,MatrixXd& Y,VectorXd& PSI_INV, MatrixXd&
 
 void cal_vl(MatrixXd& vl, VectorXd& indexALL,VectorXd& PSI_INV,MatrixXd& EXX,MatrixXd& Z,MatrixXd& THETA,VectorXd& PHI,MatrixXd& partV, int count_indexALL, int j){
     
-    Eigen::initParallel();
+    //Eigen::initParallel();
     
     partV.setZero();
-    #pragma omp parallel for
+    //#pragma omp parallel for
     for(int i1=0;i1<count_indexALL;i1++){
         for(int i2=0;i2<count_indexALL;i2++){
             partV(indexALL(i1),indexALL(i2)) = PSI_INV(j)*EXX(indexALL(i1),indexALL(i2));
@@ -768,7 +768,7 @@ void cal_vl(MatrixXd& vl, VectorXd& indexALL,VectorXd& PSI_INV,MatrixXd& EXX,Mat
     }
     
     MatrixXd partVI=MatrixXd::Constant(count_indexALL,count_indexALL,0);
-    #pragma omp parallel for collapse(2)
+    //#pragma omp parallel for collapse(2)
     for(int i1=0;i1<count_indexALL;i1++){
         for(int i2=0;i2<count_indexALL;i2++){
             partVI(i1,i2) = partV(indexALL(i1),indexALL(i2));
@@ -793,8 +793,8 @@ void cal_lam(MatrixXd& LAM, MatrixXd& Y,MatrixXd& EX,VectorXd& PSI_INV,MatrixXd&
     
     LPL.setZero();
     
-    Eigen::initParallel();
-
+    //Eigen::initParallel();
+    #pragma omp parallel for
     for(int j=0;j<s_n;j++){
         
         //auto start = std::chrono::system_clock::now();
@@ -834,7 +834,7 @@ void cal_lam(MatrixXd& LAM, MatrixXd& Y,MatrixXd& EX,VectorXd& PSI_INV,MatrixXd&
         cpy_row_matrix_bak(LAM,LAMI,indexALL,count_indexALL,j);
         LLI=LAMI.transpose()*LAMI;
         
-        #pragma omp parallel for collapse(2)
+        //#pragma omp parallel for collapse(2)
         for(int i1=0;i1<count_indexALL;i1++){
             for(int i2=0;i2<count_indexALL;i2++){
                 LPL(indexALL(i1),indexALL(i2)) += PSI_INV(j)*(LLI(i1,i2)+vl(i1,i2));
@@ -855,11 +855,12 @@ void cal_lam(MatrixXd& LAM, MatrixXd& Y,MatrixXd& EX,VectorXd& PSI_INV,MatrixXd&
     
 }
     //cal_lam_element_wise(Y, LAM, EX, THETA, EXX, Z, PSI_INV, PHI, s_n, nf);
-void cal_lam_element_wise(MatrixXd& Y, MatrixXd& LAM, MatrixXd& EX, MatrixXd& THETA, MatrixXd& EXX, MatrixXd& Z, VectorXd& PSI_INV, VectorXd& PHI, int s_n, int nf){
+void cal_lam_element_wise_single_thread(MatrixXd& Y, MatrixXd& LAM, MatrixXd& EX, MatrixXd& THETA, MatrixXd& EXX, MatrixXd& Z, VectorXd& PSI_INV, VectorXd& PHI, int s_n, int nf){
     
     MatrixXd LAM_bak = LAM;
     MatrixXd LAMXX = LAM * EXX;
     
+    //MatrixXd TOP = VectorXd::Constant(s_n,0);
     //#pragma omp parallel for
     for(int i=0;i<nf;i++){
         VectorXd TOP = VectorXd::Constant(s_n,0);
@@ -877,6 +878,33 @@ void cal_lam_element_wise(MatrixXd& Y, MatrixXd& LAM, MatrixXd& EX, MatrixXd& TH
             }
         }
         LAMXX = LAMXX  + (LAM.col(i) - LAM_bak.col(i)) * EXX.row(i);
+    }
+}
+
+void cal_lam_element_wise(MatrixXd& Y, MatrixXd& LAM, MatrixXd& EX, MatrixXd& THETA, MatrixXd& EXX, MatrixXd& Z, VectorXd& PSI_INV, VectorXd& PHI, int s_n, int nf){
+    
+    MatrixXd LAM_bak = LAM;
+    MatrixXd LAMXX = LAM * EXX;
+    
+    MatrixXd TOP = MatrixXd::Constant(s_n,nf,0);
+
+    //Eigen::initParallel();
+    #pragma omp parallel for
+    for(int i=0;i<nf;i++){
+        for(int j=0;j<s_n;j++){
+            TOP(j,i) = Y.row(j).dot(EX.row(i)) - LAMXX(j,i) + LAM(j,i) * EXX(i,i);
+            if(Z(0,i)==0){
+                LAM(j,i) = TOP(j,i)/(EXX(i,i)+double(1)/PSI_INV(j)*Z(1,i)/PHI(i));
+            }
+            else if(Z(1,i)==0){
+                LAM(j,i) = TOP(j,i)/(EXX(i,i)+double(1)/PSI_INV(j)*Z(0,i)/THETA(j,i));
+            }
+            else{
+                LAM(j,i) = TOP(j,i)/(EXX(i,i)+double(1)/PSI_INV(j)*(Z(1,i)/PHI(i)+Z(0,i)/THETA(j,i)));
+            }
+            LAMXX.row(j) = LAMXX.row(j) + (LAM(j,i) - LAM_bak(j,i)) * EXX.row(i);
+        }
+        
     }
 }
 /*
@@ -911,11 +939,11 @@ void cal_lam_element_wise2(MatrixXd& Y, MatrixXd& LAM, MatrixXd& EX, MatrixXd& T
 
 void cal_ex_simple(MatrixXd& EX, MatrixXd& EXX, MatrixXd& LAM, VectorXd& PSI_INV, MatrixXd& Y, int s_n, int nf, int d_y){
     
-    Eigen::initParallel();
+    //Eigen::initParallel();
     
     MatrixXd LP = MatrixXd::Constant(nf,s_n,0);
     MatrixXd ID=MatrixXd::Identity(nf,nf);
-    #pragma omp parallel for
+    //#pragma omp parallel for
     for(int i=0;i<s_n;i++){
         LP.col(i)=LAM.transpose().col(i)*PSI_INV(i);
     }
@@ -926,56 +954,11 @@ void cal_ex_simple(MatrixXd& EX, MatrixXd& EXX, MatrixXd& LAM, VectorXd& PSI_INV
     //TEX=EX.transpose();
 }
 
-void cal_fix_eff(MatrixXd& LAM, MatrixXd& EX, MatrixXd& THETA, VectorXd& PHI, MatrixXd& Z, MatrixXd& EXX, MatrixXd& cov, MatrixXd& LAM_cov, MatrixXd& THETA_cov, VectorXd& PHI_cov, MatrixXd& Z_cov, VectorXd& PSI_INV, MatrixXd& Y, int s_n, int d_y, int nf, int ncov){
-    
-    MatrixXd LAM_merge = MatrixXd::Constant(s_n,nf + ncov,0);
-    MatrixXd EX_merge = MatrixXd::Constant(nf + ncov,d_y,0);
-    MatrixXd Z_merge = MatrixXd::Constant(2,nf + ncov,0);
-    MatrixXd THETA_merge = MatrixXd::Constant(s_n,nf + ncov,0);
-    VectorXd PHI_merge = VectorXd::Constant(nf + ncov,0);
-    MatrixXd EXX_merge = MatrixXd::Constant(nf+ncov,nf+ncov,0);
-    
-    //MatrixXd VLAM_merge = MatrixXd::Constant(s_n,nf + ncov,0);
-    
-    LAM_merge.block(0,0,s_n,nf) = LAM;
-    LAM_merge.block(0,nf,s_n,ncov) = LAM_cov;
-    
-    //VLAM_merge.block(0,0,s_n,nf) = VLAM;
-    //VLAM_merge.block(0,nf,s_n,ncov) = VLAM_cov;
-    
-    EX_merge.block(0,0,nf,d_y) = EX;
-    EX_merge.block(nf,0,ncov,d_y) = cov;
-    
-    Z_merge.block(0,0,2,nf) = Z;
-    Z_merge.block(0,nf,2,ncov) = Z_cov;
-    
-    THETA_merge.block(0,0,s_n,nf) = THETA;
-    THETA_merge.block(0,nf,s_n,ncov) = THETA_cov;
-    
-    PHI_merge.segment(0,nf) = PHI;
-    PHI_merge.segment(nf,ncov) = PHI_cov;
-    
-    VectorXd indexALL_merge = VectorXd::Constant(nf+ncov,0);
-    //MatrixXd partV_merge=MatrixXd::Constant(nf+ncov,nf+ncov,0);
-    MatrixXd LPL_merge = MatrixXd::Constant(nf+ncov,nf+ncov,0);
-    //MatrixXd partL_merge = MatrixXd::Constant(s_n,nf+ncov,0);
-    
-    EXX_merge = EX_merge * EX_merge.transpose();
-    EXX_merge.block(0,0,nf,nf) = EXX;
-    
-    
-    cal_lam(LAM_merge, Y, EX_merge, PSI_INV, EXX_merge, Z_merge, LPL_merge, THETA_merge, PHI_merge, s_n, d_y, nf+ncov);
-    
-    LAM = LAM_merge.block(0,0,s_n,nf);
-    LAM_cov = LAM_merge.block(0,nf,s_n,ncov);
-    //VLAM_cov = VLAM_merge.block(0,nf,s_n,ncov);
-}
-
 void cal_z(MatrixXd& logZ,MatrixXd& LOGV,MatrixXd& LAM, MatrixXd& THETA, MatrixXd& DELTA, VectorXd& PHI, MatrixXd& Z, int nf, int s_n, double a, double b, double alpha, double beta, bool cln){
     
     // logZ
-    Eigen::initParallel();
-    #pragma omp parallel for
+    //Eigen::initParallel();
+    //#pragma omp parallel for
     for(int i=0;i<nf;i++){
         logZ(0,i)=LOGV(0,0);
         logZ(1,i)=LOGV(1,0);
@@ -993,7 +976,7 @@ void cal_z(MatrixXd& logZ,MatrixXd& LOGV,MatrixXd& LAM, MatrixXd& THETA, MatrixX
     }
     
     // Z
-    #pragma omp parallel for
+    //#pragma omp parallel for
     for(int i=0;i<nf;i++){
         Z(0,i)=double(1)/(1+exp(logZ(1,i)-logZ(0,i)));
         Z(1,i)=1-Z(0,i);
@@ -1017,8 +1000,8 @@ void cal_z(MatrixXd& logZ,MatrixXd& LOGV,MatrixXd& LAM, MatrixXd& THETA, MatrixX
 }
 
 void cal_psi(VectorXd& PSI,MatrixXd& LX, MatrixXd& Y,MatrixXd& LAM, MatrixXd& EXX, int s_n, int d_y){
-    Eigen::initParallel();
-    #pragma omp parallel for
+    //Eigen::initParallel();
+    //#pragma omp parallel for
     for(int i=0;i<s_n;i++){
         PSI(i)=(0.5*(Y.row(i).dot(Y.row(i))-2*(LX.row(i)).dot(Y.row(i))+(LAM.row(i)*EXX).dot(LAM.row(i)))+1)/(double(d_y)/2+1);
 
