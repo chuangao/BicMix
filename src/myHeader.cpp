@@ -854,7 +854,7 @@ void cal_lam(MatrixXd& LAM, MatrixXd& Y,MatrixXd& EX,VectorXd& PSI_INV,MatrixXd&
     
     
 }
-
+    //cal_lam_element_wise(Y, LAM, EX, THETA, EXX, Z, PSI_INV, PHI, s_n, nf);
 void cal_lam_element_wise(MatrixXd& Y, MatrixXd& LAM, MatrixXd& EX, MatrixXd& THETA, MatrixXd& EXX, MatrixXd& Z, VectorXd& PSI_INV, VectorXd& PHI, int s_n, int nf){
     
     MatrixXd LAM_bak = LAM;
@@ -1026,8 +1026,7 @@ void cal_psi(VectorXd& PSI,MatrixXd& LX, MatrixXd& Y,MatrixXd& LAM, MatrixXd& EX
     //PSI=PSI/d_y;
 }
 
-void cal_lam_all(MatrixXd& LAM, MatrixXd& Y,MatrixXd& EX,VectorXd& PSI_INV,MatrixXd& EXX,MatrixXd& Z,MatrixXd& LPL,MatrixXd& THETA,VectorXd& PHI, int s_n, int d_y, int nf,
-                 double a, double b, double c, double d, double g, double h, double GAMMA, double ETA, double nu, VectorXd& TAU, MatrixXd& DELTA, double alpha, double beta,string lam_method){
+void cal_lam_all(MatrixXd& LAM, MatrixXd& Y,MatrixXd& EX,VectorXd& PSI_INV,MatrixXd& EXX,MatrixXd& Z,MatrixXd& LPL,MatrixXd& THETA,VectorXd& PHI, int s_n, int d_y, int nf, double a, double b, double c, double d, double g, double h, double GAMMA, double ETA, double nu, VectorXd& TAU, MatrixXd& DELTA, double alpha, double beta,string lam_method){
     
     GAMMA=double(g+h)/(ETA+nu);
     ETA=double((d*nf+g))/(GAMMA+TAU.sum());

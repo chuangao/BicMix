@@ -169,13 +169,13 @@ extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, do
     
     //string lam_method_in = lam_method;
     
-       int nf_bak = nf;
-        MatrixXd LAM_bak=LAM;
-        MatrixXd EX_bak=EX;
-        MatrixXd EXX_bak=EXX;
-        MatrixXd Z_bak=Z;
-        MatrixXd O_bak=O;
-        VectorXd PSI_bak=PSI;
+    int nf_bak = nf;
+    MatrixXd LAM_bak=LAM;
+    MatrixXd EX_bak=EX;
+    MatrixXd EXX_bak=EXX;
+    MatrixXd Z_bak=Z;
+    MatrixXd O_bak=O;
+    VectorXd PSI_bak=PSI;
 
     for(int itr=0;itr<=n_itr;itr++){
 
@@ -287,6 +287,7 @@ extern "C" void BicMix(double *Y_TMP_param ,int *nrow_param, int *ncol_param, do
     }
     if(nf <= nf_min_in){
         convert_results(LAM_bak,EX_bak,EXX_bak,Z_bak,O_bak,PSI_bak,nf_bak,LAM_out,EX_out,EXX_out, Z_out,O_out,PSI_out, nf_out,s_n,d_y);
+        //convert_results(LAM,    EX,    EXX,    Z,    O,    PSI,    nf,    LAM_out,EX_out,EXX_out, Z_out,O_out,PSI_out, nf_out,s_n,d_y);
     }else{
         convert_results(LAM,EX,EXX,Z,O,PSI,nf,LAM_out,EX_out,EXX_out, Z_out,O_out,PSI_out, nf_out,s_n,d_y);
     }

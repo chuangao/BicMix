@@ -31,12 +31,11 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, c_param,
     
     PSI <- result[["PSI"]][1:nrow_param]
     
+    cat("finished running c\n")
     #return(result)
-    if(x_method == "dense"){
-        return(list(lam=LAM,ex=EX,z=Z,exx=EXX,psi=PSI,nf=nf,rsd=rsd))
-    }else{
-        return(list(lam=LAM,ex=EX,z=Z,o=O,exx=EXX,psi=PSI,nf=nf,rsd=rsd))
-    }
+    
+    return(list(lam=LAM,ex=EX,z=Z,o=O,exx=EXX,psi=PSI,nf=nf,rsd=rsd))
+    
     
     ##return(list(LAM=result$LAM_out,EX=result$EX_out))
 }
@@ -169,6 +168,8 @@ BicMixR <- function(y=NULL,nf=100,a=0.5,b=0.5,c=0.5,d=0.5, e=0.5,f=0.5, itr=5001
     nf_out <- c()
 
     result <- BicMix(y,sn,dy,a,b,c, d, e, f, nf,itr,LAM_out,EX_out,Z_out,O_out,EXX_out, PSI_out, nf_out, out_itr, out_dir2, rsd, lam_method, x_method, tol, nf_min)
+
+    cat("results returned from c\n")
     return(result)
 }
 

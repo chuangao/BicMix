@@ -22,8 +22,8 @@ run_sim <- function(data.config, method.config, itr=2001, inputDir=NULL, outputD
             type.loading="mixture"
             if(!dense){type.loading="sparse"}
             
-            data=gen_BicMix_data(std=std.effect, rsd = i.seed, std.err=std.err, nf = nf, 
-                                 nfs=nfs, ng=ng,ns=ns,type.loading=type.loading,type.factor="dense")
+            data=gen_BicMix_data(std=std.effect, rsd = i.seed, std.err=std.err, nf = 15, 
+                                 nfs=10, ng=ng,ns=ns,type.loading=type.loading,type.factor="dense")
             
             data.file.name <- paste(paste0(names(data.config),data.config[i,]),collapse="_")
             data.file.name=paste0(data.file.name,".txt")
@@ -36,7 +36,6 @@ run_sim <- function(data.config, method.config, itr=2001, inputDir=NULL, outputD
             lam <- NULL
             
             a <- 0.5; b <- 0.5; c <- 0.5; d <- 0.5; e <- 0.5; f <- 0.5
-            
             if(method == "SFAMix"){
                 outputDir.sfamix=file.path(outputDir,"sfamix",data.file.name)
                 dir.create(outputDir.sfamix, recursive = T)
@@ -47,20 +46,7 @@ run_sim <- function(data.config, method.config, itr=2001, inputDir=NULL, outputD
                 z <- results$z
                 lams <- lam[,z>0.8,drop=F]
                 lamd <- lam[,z<=0.8,drop=F]
-            # }else if(method == "SFAMix2"){
-            #     outputDir.sfamix2=file.path(outputDir,"sfamix2",data.file.name)
-            #     dir.create(outputDir.sfamix2, recursive = T)
-            #     
-            #     prc <- prcomp(data$y, center = TRUE, scale = FALSE)
-            #     y <- lm(data$y ~ prc$x[,1:5])$residual
-            #     
-            #     results <- BicMixR(y=y, nf = 50, a=a,b=b,c=c,d=d,e=e,f=f, out_dir=outputDir.sfamix2, 
-            #                        rsd = 123, tol=1e-10, itr = itr, lam_method="element",x_method="dense",nf_min=1)
-            #     lam <- results$lam
-            #     z <- results$z
-            #     lams <- lam[,z>0.8,drop=F]
-            #     lamd <- lam[,z<=0.8,drop=F]
-            #  
+       
             }else if(method == "SBIF"){ 
                 outputDir.sbif=file.path(outputDir,'SBIF')
                 dir.create(outputDir.sbif, recursive = T)
@@ -70,14 +56,7 @@ run_sim <- function(data.config, method.config, itr=2001, inputDir=NULL, outputD
                 #lam <- lam[,ncol(lam):1,drop=F]
                 count <- apply(lam,2,function(x){return(sum(x!=0))})
                 lam <- lam[,count>0,drop=F]
-                #lams <- lam[,1:min(ncol(lam),nfs),drop=F]
-                
-                #if(dense){  
-                #    if(ncol(lam) > nfs){lamd <- lam[,(nfs+1):ncol(lam),drop=FALSE]}
-                #}
-            #}else{
-                outputDir.spca=file.path(outputDir,'SPCA',data.file.name)
-                dir.create(outputDir.spca, recursive = T)
+
             }else if(method == "SPCA"){
                 outputDir.spca=file.path(outputDir,'SPCA',data.file.name)
                 dir.create(outputDir.spca, recursive = T)
@@ -96,13 +75,17 @@ run_sim <- function(data.config, method.config, itr=2001, inputDir=NULL, outputD
                 lam <- res$lam
             }
             
-            if(method != "SFAMix" && method != "SFAMix2"){
+            if(method != "SFAMix"){
                 index.lam <- order(apply(lam,2,var))
                 lam <- lam[,index.lam]
-                lams <- lam[,1:min(ncol(lam),nfs),drop=F]
+                
                 if(dense){  
-                    #lamd <- lam[,index.lam[(nfs+1):nf],drop=F]
-                    if(ncol(lam) > nfs){lamd <- lam[,(nfs+1):ncol(lam),drop=FALSE]}
+                    lams <- lam[,1:min(ncol(lam),nfs),drop=F]
+                    if(ncol(lam) > nfs){
+                      lamd <- lam[,(nfs+1):ncol(lam),drop=FALSE]
+                    }
+                }else{
+                    lams <- lam[,1:min(ncol(lam),nf),drop=F]
                 }
             }
          
@@ -175,9 +158,14 @@ gen_schema <- function(){
     p
 }
 
-plot_comparison <- function(res){
+plot_comparison <- function(res, precis=F){
     
-    names(res) <- c("K","Std.err","Seed","Method","Std.effect","Dense","Score Sparse","Score.sparse.precis","Score Dense","Score.dense.precis","Ks","Kd")
+    if(precis){
+        names(res) <- c("K","Std.err","Seed","Method","Std.effect","Dense","Score.sparse","Score Sparse","Score.dense","Score Dense","Ks","Kd")
+    }else{
+        names(res) <- c("K","Std.err","Seed","Method","Std.effect","Dense","Score Sparse","Score.sparse.precis","Score Dense","Score.dense.precis","Ks","Kd")
+    }
+  
     #res <- res[as.character(res$alg) == "element",]
     #names(res) <- c("K","Std.err","Seed","Method","alg","Std.effect","Local","Component","Global","Dense","Score Sparse","Score.sparse.precis","Score Dense","Score.dense.precis","Ks","Kd")
     res <- melt(res,id.vars = c("Std.err","Seed","Method","Dense"), measure.vars = c("Score Sparse","Score Dense"),variable.name = "Score.type", value.name = "Score")
@@ -192,7 +180,7 @@ plot_comparison <- function(res){
     
     #res$Score = as.numeric(res$Score)
     p <- ggboxplot(res,x="Method",y="Score",color="Method",palette="jco",add="jitter",shape="Method")
-    p <- facet(p,facet.by = c("Type","Std.err"), panel.labs.font = list(size=14))
+    p <- facet(p,facet.by = c("Type","Std.err"), panel.labs.font = list(size=14),scales = "free_y",)
     p <- format_font(p, size=18) + rotate_x_text(angle=45) 
     p <- ggpar(p, legend.title = NULL) + panel_border() + background_grid()
     
@@ -254,3 +242,18 @@ plot_comparison <- function(res){
 #     perr <- mine_heatmap(data$err,"Error")
 #     return(list(plam = plam, pex = pex, py = py, perr = perr))
 # }
+
+# }else if(method == "SFAMix2"){
+#     outputDir.sfamix2=file.path(outputDir,"sfamix2",data.file.name)
+#     dir.create(outputDir.sfamix2, recursive = T)
+#     
+#     prc <- prcomp(data$y, center = TRUE, scale = FALSE)
+#     y <- lm(data$y ~ prc$x[,1:5])$residual
+#     
+#     results <- BicMixR(y=y, nf = 50, a=a,b=b,c=c,d=d,e=e,f=f, out_dir=outputDir.sfamix2, 
+#                        rsd = 123, tol=1e-10, itr = itr, lam_method="element",x_method="dense",nf_min=1)
+#     lam <- results$lam
+#     z <- results$z
+#     lams <- lam[,z>0.8,drop=F]
+#     lamd <- lam[,z<=0.8,drop=F]
+#  

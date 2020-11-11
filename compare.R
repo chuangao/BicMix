@@ -63,7 +63,7 @@ i=1
 
 res <- run_sim(data.config,method.config, itr = itr, inputDir=inputDir, outputDir = outputDir, script.path = script.path, bfrm.path=bfrm.path, matlab.path = matlab.path, nfs=nfs, nf=nf, ng=ng, ns=ns, mc.cores = 10)
 res.bak <- res
-#write.csv(res,file.path(table.path,"res.csv"),row.names=F)
+write.csv(res,file.path(table.path,"res.csv"),row.names=F)
 
 
 ################################### plot comparing to other method, element
@@ -72,11 +72,69 @@ res <- read.csv(file.path(table.path,"res.csv"))
 #res <- res[(!is.na(res$alg) & as.character(res$alg) == "element") | is.na(res$alg),]
 #res$method[res$method=="SFAmix"] <- "SFAMix"
 #res$method[!is.na(res$alg)] <- paste0(res$method[!is.na(res$alg)], "_", res$alg[!is.na(res$alg)])
-res$method <- factor(res$method, levels=c("SFAMix", "SBIF","BFRM","SPCA","KSVD"))
+res$method[res$method=="SFAMix"] <- "BicMix"
+res$method <- factor(res$method, levels=c("BicMix", "SBIF","BFRM","SPCA","KSVD"))
+
+p.comp <- plot_comparison(res, precis=F)
+
+file.pdf <- file.path(plot.path,"score_compare_methods_element.pdf")
+pdf(file.pdf,width=8,height=8)
+print(p.comp)
+dev.off()
+
+
+################################################################# 
+
+nf.init = 20
+nfs.init = 15
+
+file.name <- paste0("score_compare_methods_element_nf_unknown_nfs",nfs.init,"_nf",nf.init)
+
+data.config2 <- data.config
+res <- run_sim(data.config2,method.config, itr = itr, inputDir=inputDir, outputDir = outputDir, script.path = script.path, bfrm.path=bfrm.path, matlab.path = matlab.path, nfs=nfs.init, nf=nf.init, ng=ng, ns=ns, mc.cores = 10)
+res.bak <- res
+write.csv(res,file.path(table.path,paste0(file.name,".csv")),row.names=F)
+
+
+################################### plot comparing to other method, element
+
+res <- read.csv(file.path(table.path,paste0(file.name,".csv")))
+#res <- res[(!is.na(res$alg) & as.character(res$alg) == "element") | is.na(res$alg),]
+#res$method[res$method=="SFAmix"] <- "SFAMix"
+#res$method[!is.na(res$alg)] <- paste0(res$method[!is.na(res$alg)], "_", res$alg[!is.na(res$alg)])
+res$method[res$method=="SFAMix"] <- "BicMix"
+res$method <- factor(res$method, levels=c("BicMix", "SBIF","BFRM","SPCA","KSVD"))
 
 p.comp <- plot_comparison(res)
 
-file.pdf <- file.path(plot.path,"score_compare_methodselement.pdf")
+file.pdf <- file.path(plot.path,paste0(file.name,".pdf"))
+pdf(file.pdf,width=8,height=8)
+print(p.comp)
+dev.off()
+
+
+
+
+################################################################################ 
+
+data.config2 <- data.config[data.config$std.err==2 & data.config$dense == "FALSE",]
+res <- run_sim(data.config2,method.config[1], itr = itr, inputDir=inputDir, outputDir = outputDir, script.path = script.path, bfrm.path=bfrm.path, matlab.path = matlab.path, nfs=20, nf=30, ng=ng, ns=ns, mc.cores = 10)
+res.bak <- res
+write.csv(res,file.path(table.path,"res_nf_unknown20.csv"),row.names=F)
+
+
+################################### plot comparing to other method, element
+
+res <- read.csv(file.path(table.path,"res_nf_unknown20.csv"))
+#res <- res[(!is.na(res$alg) & as.character(res$alg) == "element") | is.na(res$alg),]
+#res$method[res$method=="SFAmix"] <- "SFAMix"
+#res$method[!is.na(res$alg)] <- paste0(res$method[!is.na(res$alg)], "_", res$alg[!is.na(res$alg)])
+res$method[res$method=="SFAMix"] <- "BicMix"
+res$method <- factor(res$method, levels=c("BicMix", "SBIF","BFRM","SPCA","KSVD"))
+
+p.comp <- plot_comparison(res, precis=T)
+
+file.pdf <- file.path(plot.path,"score_compare_methodselement_nf_unknown_other_methods.pdf")
 pdf(file.pdf,width=8,height=8)
 print(p.comp)
 dev.off()
