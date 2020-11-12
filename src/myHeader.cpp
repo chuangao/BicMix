@@ -518,7 +518,7 @@ void cal_lamx(VectorXd& LAMX, MatrixXd& O, VectorXd& KAPPA, MatrixXd& RHO,Matrix
         
         if(LAMX(i)<1e-50){
             LAMX(i)=1e-50;
-        }
+        }  
         
     }
 }
@@ -782,8 +782,6 @@ void cal_vl(MatrixXd& vl, VectorXd& indexALL,VectorXd& PSI_INV,MatrixXd& EXX,Mat
 
 void cal_lam(MatrixXd& LAM, MatrixXd& Y,MatrixXd& EX,VectorXd& PSI_INV,MatrixXd& EXX,MatrixXd& Z,MatrixXd& LPL,MatrixXd& THETA,VectorXd& PHI, int s_n, int d_y, int nf){
     
-    
-    
     MatrixXd PSIY=MatrixXd::Constant(s_n,d_y,0);
     for(int i=0;i<s_n;i++){
         PSIY.row(i) = PSI_INV(i)*Y.row(i);
@@ -794,13 +792,8 @@ void cal_lam(MatrixXd& LAM, MatrixXd& Y,MatrixXd& EX,VectorXd& PSI_INV,MatrixXd&
     LPL.setZero();
     
     //Eigen::initParallel();
-    #pragma omp parallel for
+    //#pragma omp parallel for
     for(int j=0;j<s_n;j++){
-        
-        //auto start = std::chrono::system_clock::now();
-        //std::time_t start_time = std::chrono::system_clock::to_time_t(start);
-        //cout << "Calculate LAM starting at " << std::ctime(&start_time) << endl;
-        
         int count_indexALL=0;
         VectorXd indexALL = VectorXd::Constant(nf,0);
         for(int i=0;i<nf;i++){
@@ -854,6 +847,163 @@ void cal_lam(MatrixXd& LAM, MatrixXd& Y,MatrixXd& EX,VectorXd& PSI_INV,MatrixXd&
     
     
 }
+
+
+void cal_lam_multi_thread(MatrixXd& LAM, MatrixXd& Y,MatrixXd& EX,VectorXd& PSI_INV,MatrixXd& EXX,MatrixXd& Z,MatrixXd& LPL,MatrixXd& THETA,VectorXd& PHI, int s_n, int d_y, int nf){
+  
+    MatrixXd PSIY=MatrixXd::Constant(s_n,d_y,0);
+    for(int i=0;i<s_n;i++){
+        PSIY.row(i) = PSI_INV(i)*Y.row(i);
+    }
+    
+    MatrixXd partL = PSIY*EX.transpose();
+    
+    LPL.setZero();
+
+    #pragma omp parallel
+    {
+        MatrixXd LPL_tmp = MatrixXd::Constant(nf, nf,0);
+        #pragma omp parallel for
+        for(int j=0;j<s_n;j++){
+                cout << "s_n " << j << endl;
+                cout << "nf " << nf << endl;
+                int count_indexALL=0;
+                VectorXd indexALL = VectorXd::Constant(nf,0);
+                for(int i=0;i<nf;i++){
+                    if(THETA(j,i)!=0 && PHI(i)!=0){
+                        indexALL(count_indexALL)=i;
+                        count_indexALL++;
+                    }
+                }
+                
+                if(count_indexALL==0){
+                    LAM.row(j).setZero();
+                    //continue;
+                }else{
+                    MatrixXd vl = MatrixXd::Constant(count_indexALL, count_indexALL,0);
+                    
+                    MatrixXd partV = MatrixXd::Constant(nf,nf,0);
+                    cal_vl(vl,indexALL,PSI_INV,EXX,Z,THETA,PHI,partV,count_indexALL,j);
+                    
+                    MatrixXd partLI=MatrixXd::Constant(1,count_indexALL,0);
+                    MatrixXd LAMI=MatrixXd::Constant(1,count_indexALL,0);
+                    MatrixXd LLI=MatrixXd::Constant(count_indexALL,count_indexALL,0);
+                    cpy_row_matrix(partLI,partL,indexALL,count_indexALL,j);
+                    
+                    LAMI=partLI*vl;
+                    for(int i=0;i<count_indexALL;i++){
+                        if(THETA(j,indexALL(i))==0){
+                            LAMI(i)=0;
+                        }
+                    }
+                    
+                    cpy_row_matrix_bak(LAM,LAMI,indexALL,count_indexALL,j);
+                    LLI=LAMI.transpose()*LAMI;
+                    
+                    for(int i1=0;i1<count_indexALL;i1++){
+                        for(int i2=0;i2<count_indexALL;i2++){
+                            LPL_tmp(indexALL(i1),indexALL(i2)) = PSI_INV(j)*(LLI(i1,i2)+vl(i1,i2));
+                            //vLXL(j,j) += vl(i1,i2)*EXX(indexALL(i1),indexALL(i2));
+                        }
+                    }
+                }
+                
+            
+        }
+        #pragma omp critical
+        {
+           LPL += LPL_tmp;
+        }
+    }
+    
+    for(int i=0;i<s_n;i++){
+        for(int j=0;j<nf;j++){
+            if(THETA(i,j)==0){
+                LAM(i,j)=0;
+            }
+        }
+    }
+    
+    
+}
+
+
+
+void loop_lam(MatrixXd& LAM, MatrixXd& Y,MatrixXd& EX,VectorXd& PSI_INV,MatrixXd& EXX,MatrixXd& Z,MatrixXd& LPL,MatrixXd& THETA,VectorXd& PHI, int s_n, int d_y, int nf, MatrixXd& partL, int j){
+
+        int count_indexALL=0;
+        VectorXd indexALL = VectorXd::Constant(nf,0);
+        for(int i=0;i<nf;i++){
+            if(THETA(j,i)!=0 && PHI(i)!=0){
+                indexALL(count_indexALL)=i;
+                count_indexALL++;
+            }
+        }
+        
+        if(count_indexALL==0){
+            LAM.row(j).setZero();
+            //continue;
+        }else{
+            MatrixXd vl = MatrixXd::Constant(count_indexALL, count_indexALL,0);
+            
+            MatrixXd partV = MatrixXd::Constant(nf,nf,0);
+            cal_vl(vl,indexALL,PSI_INV,EXX,Z,THETA,PHI,partV,count_indexALL,j);
+            
+            MatrixXd partLI=MatrixXd::Constant(1,count_indexALL,0);
+            MatrixXd LAMI=MatrixXd::Constant(1,count_indexALL,0);
+            MatrixXd LLI=MatrixXd::Constant(count_indexALL,count_indexALL,0);
+            cpy_row_matrix(partLI,partL,indexALL,count_indexALL,j);
+            
+            LAMI=partLI*vl;
+            for(int i=0;i<count_indexALL;i++){
+                if(THETA(j,indexALL(i))==0){
+                    LAMI(i)=0;
+                }
+            }
+            
+            cpy_row_matrix_bak(LAM,LAMI,indexALL,count_indexALL,j);
+            LLI=LAMI.transpose()*LAMI;
+            
+            //#pragma omp parallel for collapse(2)
+            for(int i1=0;i1<count_indexALL;i1++){
+                for(int i2=0;i2<count_indexALL;i2++){
+                    LPL(indexALL(i1),indexALL(i2)) += PSI_INV(j)*(LLI(i1,i2)+vl(i1,i2));
+                    //vLXL(j,j) += vl(i1,i2)*EXX(indexALL(i1),indexALL(i2));
+                }
+            }
+        }
+       
+}
+
+void cal_lam_multi_thread2(MatrixXd& LAM, MatrixXd& Y,MatrixXd& EX,VectorXd& PSI_INV,MatrixXd& EXX,MatrixXd& Z,MatrixXd& LPL,MatrixXd& THETA,VectorXd& PHI, int s_n, int d_y, int nf){
+ 
+    MatrixXd PSIY=MatrixXd::Constant(s_n,d_y,0);
+    for(int i=0;i<s_n;i++){
+        PSIY.row(i) = PSI_INV(i)*Y.row(i);
+    }
+    
+    MatrixXd partL = PSIY*EX.transpose();
+    
+    LPL.setZero();
+    
+    //Eigen::initParallel();
+    //#pragma omp parallel for schedule(static) reduction(+:LPL)
+    for(int j=0;j<s_n;j++){
+        loop_lam(LAM, Y, EX,PSI_INV,EXX,Z,LPL,THETA,PHI, s_n, d_y, nf, partL, j);
+    }
+    
+    for(int i=0;i<s_n;i++){
+        for(int j=0;j<nf;j++){
+            if(THETA(i,j)==0){
+                LAM(i,j)=0;
+            }
+        }
+    }
+    
+    
+}
+
+
     //cal_lam_element_wise(Y, LAM, EX, THETA, EXX, Z, PSI_INV, PHI, s_n, nf);
 void cal_lam_element_wise_single_thread(MatrixXd& Y, MatrixXd& LAM, MatrixXd& EX, MatrixXd& THETA, MatrixXd& EXX, MatrixXd& Z, VectorXd& PSI_INV, VectorXd& PHI, int s_n, int nf){
     
@@ -907,6 +1057,7 @@ void cal_lam_element_wise(MatrixXd& Y, MatrixXd& LAM, MatrixXd& EX, MatrixXd& TH
         
     }
 }
+
 /*
 void cal_lam_element_wise2(MatrixXd& Y, MatrixXd& LAM, MatrixXd& EX, MatrixXd& THETA, MatrixXd& EXX, MatrixXd& Z, VectorXd& PSI_INV, VectorXd& PHI, int s_n, int nf){
     // suspect that cal_lam_element_wise is too slow, because it didn't effectively use the updated the parameters. come up with this version, so that the next element is based on the updated previous parameter values, turned out didn't speed up much.
