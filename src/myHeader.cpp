@@ -568,7 +568,7 @@ void cal_rho(MatrixXd& RHO, MatrixXd& SIGMA, VectorXd& LAMX, double a, double b,
 void cal_delta(MatrixXd& DELTA,MatrixXd& THETA,VectorXd& PHI,double a, double b,int nf, int s_n, bool cln){
     
     //Eigen::initParallel();
-    //#pragma omp parallel for collapse(2)
+    #pragma omp parallel for collapse(2)
     for(int i=0;i<s_n;i++){
         for(int j=0;j<nf;j++){
             if(cln){
@@ -599,7 +599,7 @@ void cal_theta(MatrixXd& THETA,MatrixXd& LAM,MatrixXd& DELTA,double a, int s_n, 
     
     double a23=(2*a-3);
     //Eigen::initParallel();
-    //#pragma omp parallel for collapse(2)
+    #pragma omp parallel for collapse(2)
     for(int i=0;i<s_n;i++){
         for(int j=0;j<nf;j++){
             if(cln){
@@ -1208,7 +1208,7 @@ void cal_z(MatrixXd& logZ,MatrixXd& LOGV,MatrixXd& LAM, MatrixXd& THETA, MatrixX
     
     // logZ
     //Eigen::initParallel();
-    //#pragma omp parallel for
+    #pragma omp parallel for
     for(int i=0;i<nf;i++){
         logZ(0,i)=LOGV(0,0);
         logZ(1,i)=LOGV(1,0);
@@ -1251,7 +1251,7 @@ void cal_z(MatrixXd& logZ,MatrixXd& LOGV,MatrixXd& LAM, MatrixXd& THETA, MatrixX
 
 void cal_psi(VectorXd& PSI,MatrixXd& LX, MatrixXd& Y,MatrixXd& LAM, MatrixXd& EXX, int s_n, int d_y){
     //Eigen::initParallel();
-    //#pragma omp parallel for
+    #pragma omp parallel for
     for(int i=0;i<s_n;i++){
         PSI(i)=(0.5*(Y.row(i).dot(Y.row(i))-2*(LX.row(i)).dot(Y.row(i))+(LAM.row(i)*EXX).dot(LAM.row(i)))+1)/(double(d_y)/2+1);
 
