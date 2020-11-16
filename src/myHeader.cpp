@@ -759,10 +759,21 @@ void cal_ex(MatrixXd& EX, MatrixXd& LAM,MatrixXd& Y,VectorXd& PSI_INV, MatrixXd&
     
     MatrixXd LAM_T=LAM.transpose();
     MatrixXd partR = MatrixXd::Constant(nf,d_y,0);
-    for(int i=0;i<s_n;i++){
-        partR = partR + LAM_T.col(i)*PSI_INV(i)*Y.row(i);
-    }
     
+
+    #pragma omp parallel
+    {
+        MatrixXd partR_tmp = MatrixXd::Constant(nf,d_y,0);
+        #pragma omp for nowait
+        for(int i=0;i<s_n;i++){
+            partR_tmp = partR_tmp + LAM_T.col(i)*PSI_INV(i)*Y.row(i);
+        }
+        #pragma omp critical
+        {
+            partR += partR_tmp;
+        }
+    }
+ 
     EXX.setZero();
     
     //Eigen::initParallel();
@@ -940,10 +951,12 @@ void cal_lam_single_thread(MatrixXd& LAM, MatrixXd& Y,MatrixXd& EX,VectorXd& PSI
 void cal_lam(MatrixXd& LAM, MatrixXd& Y,MatrixXd& EX,VectorXd& PSI_INV,MatrixXd& EXX,MatrixXd& Z,MatrixXd& LPL,MatrixXd& THETA,VectorXd& PHI, int s_n, int d_y, int nf){
   
     MatrixXd PSIY=MatrixXd::Constant(s_n,d_y,0);
+    
+    #pragma omp parallel
     for(int i=0;i<s_n;i++){
         PSIY.row(i) = PSI_INV(i)*Y.row(i);
     }
-    
+ 
     MatrixXd partL = PSIY*EX.transpose();
     
     LPL.setZero();
@@ -956,7 +969,6 @@ void cal_lam(MatrixXd& LAM, MatrixXd& Y,MatrixXd& EX,VectorXd& PSI_INV,MatrixXd&
     #pragma omp parallel
     {
         MatrixXd LPL_tmp = MatrixXd::Constant(nf, nf,0);
-
         #pragma omp for nowait
         for(int j=0;j<s_n;j++){
                
@@ -1193,7 +1205,7 @@ void cal_ex_simple(MatrixXd& EX, MatrixXd& EXX, MatrixXd& LAM, VectorXd& PSI_INV
     
     MatrixXd LP = MatrixXd::Constant(nf,s_n,0);
     MatrixXd ID=MatrixXd::Identity(nf,nf);
-    //#pragma omp parallel for
+    #pragma omp parallel for
     for(int i=0;i<s_n;i++){
         LP.col(i)=LAM.transpose().col(i)*PSI_INV(i);
     }
