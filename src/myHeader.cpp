@@ -1114,10 +1114,10 @@ void cal_lam_element_wise(MatrixXd& Y, MatrixXd& LAM, MatrixXd& EX, MatrixXd& TH
     MatrixXd LAMXX = LAM * EXX;
     
     //MatrixXd TOP = VectorXd::Constant(s_n,0);
-    #pragma omp parallel for
+    //#pragma omp parallel for
     for(int i=0;i<nf;i++){
         VectorXd TOP = VectorXd::Constant(s_n,0);
-        //pragma omp parallel for
+        #pragma omp parallel for
         for(int j=0;j<s_n;j++){
             TOP(j) = Y.row(j).dot(EX.row(i)) - LAMXX(j,i) + LAM(j,i) * EXX(i,i);
             if(Z(0,i)==0){
