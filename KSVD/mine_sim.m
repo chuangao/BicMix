@@ -68,7 +68,7 @@ fid = fopen(dataFile);
 A = fscanf(fid, '%g', [nrowToReplace ncolToReplace]); %nrowToReplace is the number of samples. ncolToReplace is the number of genes
 fclose(fid);
 
-addpath('/Users/cg253/BicMix2/KSVD/')
+addpath('./KSVD/')
 
 [Dictionary,output]  = KSVD(A,param);
 

@@ -26,3 +26,12 @@
     return(list(lam=lam))
  }
  
+#ksvd(inputDir=inputDir,inputFileName=data.file.name,n=ns,p=ng,k=nf,outputDir=outputDir.ksvd,scriptFile=file.path(script.path, 'KSVD/mine_sim.m'),matlabWhere=matlab.path)
+#inputDir=inputDir
+#inputFileName=data.file.name
+#n=ns
+#p=ng
+#k=nf
+#outputDir=outputDir.ksvd
+#scriptFile=file.path(script.path, 'KSVD/mine_sim.m')
+#matlabWhere=matlab.path

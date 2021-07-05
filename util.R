@@ -22,6 +22,7 @@ run_sim <- function(data.config, method.config, itr=2001, inputDir=NULL, outputD
             type.loading="mixture"
             if(!dense){type.loading="sparse"}
             
+            dir.create(inputDir)
             data=gen_BicMix_data(std=std.effect, rsd = i.seed, std.err=std.err, nf = 15, 
                                  nfs=10, ng=ng,ns=ns,type.loading=type.loading,type.factor="dense")
             
@@ -53,7 +54,6 @@ run_sim <- function(data.config, method.config, itr=2001, inputDir=NULL, outputD
                 res <- sbif(inputDir=inputDir,inputFileName=data.file.name,n=ns,p=ng,k=nf,outputDir=outputDir.sbif,scriptFile=file.path(script.path, 'SBIF/SBIF_chuan.m'),matlabWhere=matlab.path)
                 
                 lam <- res$lam
-                #lam <- lam[,ncol(lam):1,drop=F]
                 count <- apply(lam,2,function(x){return(sum(x!=0))})
                 lam <- lam[,count>0,drop=F]
 

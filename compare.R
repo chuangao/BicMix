@@ -3,6 +3,13 @@ rm(list=ls())
 
 options(scipen=10)
 
+#install_github("chuangao/BicMix",force=T)
+
+## do this to install BicMix from command line
+#git clone https://github.com/chuangao/BicMix 
+#R CMD INSTALL BicMix
+
+library(BicMix)
 library(ggplot2)
 library(parallel)
 library(glmnet)
@@ -15,7 +22,7 @@ library(ggsci)
 library(BicMix)
 library(PMA)
 library(cowplot)
-
+library(devtools)
 
 setwd("~/BicMix")
 
@@ -26,7 +33,7 @@ source("./BFRM/bfrm.r")
 source("./util.R")
 
 script.path = "~/BicMix/"
-matlab.path = "/Applications/Matlab_R2019b.app/bin/matlab"
+matlab.path = "/Applications/Polyspace/R2020b.app/bin/matlab"
 bfrm.path="~/BicMix/BFRM/bfrm"
 
 ################################################################### file directories
@@ -111,8 +118,6 @@ file.pdf <- file.path(plot.path,paste0(file.name,".pdf"))
 pdf(file.pdf,width=8,height=8)
 print(p.comp)
 dev.off()
-
-
 
 
 ################################################################################ 
