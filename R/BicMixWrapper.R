@@ -50,16 +50,17 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, c_param,
 #' @param b second shape parameter for the tpb distribution at the local level of the hierarchy, default to 0.5 to recapitulate horseshoe
 #' @param c first shape parameter for the tpb distribution at the component specific level of the hierarchy, default to 0.5 to recapitulate horseshoe
 #' @param d second shape parameter for the tpb distribution at the component specific level of the hierarchy, default to 0.5 to recapitulate horseshoe
-#' @param e first shape parameter for the tpb distribution at the gloabal level of the hierarchy, default to 0.5 to recapitulate horseshoe
+#' @param e first shape parameter for the tpb distribution at the global level of the hierarchy, default to 0.5 to recapitulate horseshoe
 #' @param f second shape parameter for the tpb distribution at the global level of the hierarchy, default to 0.5 to recapitulate horseshoe
 #' @param itr the maximum number of iterations the algorithm is allowed to run, default to 5000
 #' @param out_itr iteration number at which the algorithm writes temporary output, default to 200
 #' @param out_dir directory where the algorithm will write temporary output
 #' @param rsd random seed used for initializing the parameter values, default to a randomly drawn number
-#' @param lam_method the method used to update the loading matrix, take values either "matrix" or "element".  if "matrix", then all component are updated simultaneously (slower but more stable, don't need as many iterations to converge); if "element", each component is updated sequentially (faster but could beless stable, and need more iterations to converge), default to "matrix"
+#' @param lam_method the method used to update the loading matrix, take values either "matrix" or "element".  if "matrix", then all component are updated simultaneously (slower but more stable, don't need as many iterations to converge); if "element", each component is updated sequentially (faster but could be less stable, and need more iterations to converge), default to "matrix"
 #' @param x_method whether induce sparsity on the X matrix, take values either "sparse" or "dense". default to "dense"
 #' @param tol tolerance threshold for convergence, default to 1e-5
 #' @param qnorm whether to quantile-normalize the gene expression matrix, default to TRUE
+#' @param nf_min the minimum number of factors that needed to be kept (when the signals in the data are small, the default shrinkage parameters in BicMix can be too aggressive that zero factors are left. nf_min make sure at lease some factors are kept, default to 5)
 
 #' @return lam: the sparse loading matrix
 #' @return ex: the factor matrix
@@ -104,7 +105,7 @@ BicMix <- function(Y_TMP_param,nrow_param, ncol_param, a_param,b_param, c_param,
 #' @references \url{http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004791}
 
 #' @export BicMixR
-BicMixR <- function(y=NULL,nf=100,a=0.5,b=0.5,c=0.5,d=0.5, e=0.5,f=0.5, itr=5001,rsd=NULL,out_itr=200,out_dir=NULL, lam_method="matrix", x_method="dense", tol=1e-10, qnorm = TRUE, nf_min = 1){
+BicMixR <- function(y=NULL,nf=100,a=0.5,b=0.5,c=0.5,d=0.5, e=0.5,f=0.5, itr=5001,rsd=NULL,out_itr=200,out_dir=NULL, lam_method="matrix", x_method="dense", tol=1e-10, qnorm = TRUE, nf_min = 5){
     
 	#if(! "preprocessCore" %in% rownames(installed.packages())){
 	#	source("https://bioconductor.org/biocLite.R")

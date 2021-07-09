@@ -124,6 +124,8 @@ dev.off()
 
 data.config2 <- data.config[data.config$std.err==2 & data.config$dense == "FALSE",]
 res <- run_sim(data.config2,method.config[1], itr = itr, inputDir=inputDir, outputDir = outputDir, script.path = script.path, bfrm.path=bfrm.path, matlab.path = matlab.path, nfs=20, nf=30, ng=ng, ns=ns, mc.cores = 10)
+#res <- run_sim(data.config2,method.config, itr = itr, inputDir=inputDir, outputDir = outputDir, script.path = script.path, bfrm.path=bfrm.path, matlab.path = matlab.path, nfs=nfs.init, nf=nf.init, ng=ng, ns=ns, mc.cores = 10)
+
 res.bak <- res
 write.csv(res,file.path(table.path,"res_nf_unknown20.csv"),row.names=F)
 

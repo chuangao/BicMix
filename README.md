@@ -18,7 +18,7 @@ I found that install_github does not always work. Please install from source (se
 
 ## Usage
 
-BicMixR(y=your_input_matrix, nf=100, a=0.5, b=0.5, c=0.5, d=0.5, e=0.5, f=0.5, itr=5000, out_itr=200,  out_dir=director_to_save_results, rsd=NULL, lam_method="matrix", x_method="dense", tol=1e-10, qnorm = TRUE) <br/>
+BicMixR(y=your_input_matrix, nf=100, a=0.5, b=0.5, c=0.5, d=0.5, e=0.5, f=0.5, itr=5000, out_itr=200,  out_dir=director_to_save_results, rsd=NULL, lam_method="matrix", x_method="dense", tol=1e-10, qnorm = TRUE, nf_min = 5) <br/>
 
 **The input file y should have no headers, no missing values, just pure numbers** <br/>
 **Also no corrections of confounding beforehand, BicMix will handle that in the dense components** <br/>
@@ -41,7 +41,7 @@ BicMixR(y=your_input_matrix, nf=100, a=0.5, b=0.5, c=0.5, d=0.5, e=0.5, f=0.5, i
 **x_method** whether induce sparsity on the X matrix, take values either "sparse" or "dense". default to "sparse" <br/>
 **tol** tolerance threshold for convergence, default to 1e-10 <br/>
 **qnorm** whether to qq-normalize the gene expression matrix, default to TRUE <br/>
-
+**nf_min** the minimum number of factors that needed to be kept (when the signals in the data are small, the default shrinkage parameters in BicMix can be too aggressive that zero factors are left. nf_min make sure at lease some factors are kept, default to 5) <br/>
 
 ### Output
 **lam** the sparse loading matrix <br/>

@@ -19,9 +19,9 @@ BicMixR(
   out_dir = NULL,
   lam_method = "matrix",
   x_method = "dense",
-  tol = 1e-10,
+  tol = 0.0000000001,
   qnorm = TRUE,
-  nf_min = 1
+  nf_min = 5
 )
 }
 \arguments{
@@ -37,7 +37,7 @@ BicMixR(
 
 \item{d}{second shape parameter for the tpb distribution at the component specific level of the hierarchy, default to 0.5 to recapitulate horseshoe}
 
-\item{e}{first shape parameter for the tpb distribution at the gloabal level of the hierarchy, default to 0.5 to recapitulate horseshoe}
+\item{e}{first shape parameter for the tpb distribution at the global level of the hierarchy, default to 0.5 to recapitulate horseshoe}
 
 \item{f}{second shape parameter for the tpb distribution at the global level of the hierarchy, default to 0.5 to recapitulate horseshoe}
 
@@ -49,13 +49,15 @@ BicMixR(
 
 \item{out_dir}{directory where the algorithm will write temporary output}
 
-\item{lam_method}{the method used to update the loading matrix, take values either "matrix" or "element".  if "matrix", then all component are updated simultaneously (slower but more stable, don't need as many iterations to converge); if "element", each component is updated sequentially (faster but could beless stable, and need more iterations to converge), default to "matrix"}
+\item{lam_method}{the method used to update the loading matrix, take values either "matrix" or "element".  if "matrix", then all component are updated simultaneously (slower but more stable, don't need as many iterations to converge); if "element", each component is updated sequentially (faster but could be less stable, and need more iterations to converge), default to "matrix"}
 
 \item{x_method}{whether induce sparsity on the X matrix, take values either "sparse" or "dense". default to "dense"}
 
 \item{tol}{tolerance threshold for convergence, default to 1e-5}
 
 \item{qnorm}{whether to quantile-normalize the gene expression matrix, default to TRUE}
+
+\item{nf_min}{the minimum number of factors that needed to be kept (when the signals in the data are small, the default shrinkage parameters in BicMix can be too aggressive that zero factors are left. nf_min make sure at lease some factors are kept, default to 5)}
 }
 \value{
 lam: the sparse loading matrix
